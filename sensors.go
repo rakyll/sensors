@@ -44,8 +44,11 @@ const (
 	StatusConnecting = iota
 	StatusConnected
 	StatusDisconnecting
+	StatusUnknown
 )
 
+// Connectivity returns the type and the status of the network that is
+// currently in use.
 func Connectivity() (typ int, status int) {
 	panic("not yet")
 }

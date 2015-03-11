@@ -2,9 +2,10 @@ package sensors
 
 type Accelerometer struct {
 	// TODO(jbd): add criteria
+	fn func(deltaX, deltaY, deltaZ float64)
 }
 
-func (a *Accelerometer) Start() error {
+func NewAccelerometer() (*Accelerometer, error) {
 	panic("not yet implemented")
 }
 
@@ -18,9 +19,10 @@ func (a *Accelerometer) Stop() error {
 
 type Gyroscope struct {
 	// TODO(jbd): add criteria
+	fn func(roll, pitch, yaw float64)
 }
 
-func (g *Gyroscope) Start() error {
+func NewGyroscope() (*Gyroscope, error) {
 	panic("not yet implemented")
 }
 
@@ -41,10 +43,10 @@ const (
 
 // Connectivity status.
 const (
-	StatusConnecting = iota
+	StatusUnknown = iota
+	StatusConnecting
 	StatusConnected
 	StatusDisconnecting
-	StatusUnknown
 )
 
 // Connectivity returns the type and the status of the network that is

@@ -27,10 +27,26 @@ func NewGyroscope() (*Gyroscope, error) {
 }
 
 func (g *Gyroscope) HandleFunc(fn func(roll, pitch, yaw float64)) {
-	panic("not implemented")
+	g.fn = fn
 }
 
 func (g *Gyroscope) Stop() error {
+	panic("not yet implemented")
+}
+
+type Magnetometer struct {
+	fn func(azimut, pitch, roll float64)
+}
+
+func NewMagnetometer() (*Magnetometer, error) {
+	panic("not yet implemented")
+}
+
+func (m *Magnetometer) HandleFunc(fn func(azimut, pitch, roll float64)) {
+	m.fn = fn
+}
+
+func (m *Magnetometer) Stop() error {
 	panic("not yet implemented")
 }
 

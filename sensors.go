@@ -1,7 +1,41 @@
+// Copyright 2014 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package sensors
 
+import "time"
+
+type Location struct {
+	Latitude   float64
+	Longitude  float64
+	Altitude   float64
+	Accuracy   float64
+	RecordedAt time.Time
+}
+
+type LocationNotifier struct {
+	distance float64
+	fn       func(*Location)
+}
+
+func NewLocationNotifier(distance float64) (*LocationNotifier, error) {
+	panic("not yet")
+}
+
+func (l *LocationNotifier) Stop() error {
+	panic("not yet")
+}
+
+func (l *LocationNotifier) HandleFunc(fn *Location) error {
+	l.fn = fn
+}
+
+func (l *LocationNotifier) LastKnownLocation() (*Location, error) {
+	panic("not yet")
+}
+
 type Accelerometer struct {
-	// TODO(jbd): add criteria
 	fn func(deltaX, deltaY, deltaZ float64)
 }
 
@@ -10,7 +44,7 @@ func NewAccelerometer() (*Accelerometer, error) {
 }
 
 func (a *Accelerometer) HandleFunc(fn func(deltaX, deltaY, deltaZ float64)) {
-	panic("not yet implemented")
+	a.fn = fn
 }
 
 func (a *Accelerometer) Stop() error {

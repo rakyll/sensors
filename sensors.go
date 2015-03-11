@@ -32,6 +32,20 @@ func (g *Gyroscope) Stop() error {
 	panic("not yet implemented")
 }
 
-func Connectivity() (status int) {
+// Type of the network that is currently in use.
+const (
+	TypeWiFi = iota
+	TypeMobile
+	TypeOther
+)
+
+// Connectivity status.
+const (
+	StatusConnecting = iota
+	StatusConnected
+	StatusDisconnecting
+)
+
+func Connectivity() (typ int, status int) {
 	panic("not yet")
 }

@@ -6,17 +6,18 @@ package sensors
 
 import "time"
 
+// TODO(jbd): Find a better name for HandleFunc.
+
 type Location struct {
-	Latitude   float64
-	Longitude  float64
-	Altitude   float64
-	Accuracy   float64
-	RecordedAt time.Time
+	Latitude  float64
+	Longitude float64
+	Altitude  float64
+	Accuracy  float64
 }
 
 type LocationNotifier struct {
 	distance float64
-	fn       func(*Location)
+	fn       func(loc *Location, at time.Time)
 }
 
 func NewLocationNotifier(distance float64) (*LocationNotifier, error) {
@@ -27,7 +28,7 @@ func (l *LocationNotifier) Stop() error {
 	panic("not yet")
 }
 
-func (l *LocationNotifier) HandleFunc(fn *Location) error {
+func (l *LocationNotifier) HandleFunc(fn func(loc *Location, at time.Time)) {
 	l.fn = fn
 }
 

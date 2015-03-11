@@ -53,7 +53,6 @@ func (a *Accelerometer) Stop() error {
 }
 
 type Gyroscope struct {
-	// TODO(jbd): add criteria
 	fn func(roll, pitch, yaw float64)
 }
 

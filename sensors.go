@@ -4,8 +4,6 @@
 
 package sensors
 
-// TODO(jbd): Find a better name for HandleFunc.
-
 type Location struct {
 	Latitude  float64
 	Longitude float64
@@ -17,12 +15,8 @@ type Accelerometer struct {
 	fn func(deltaX, deltaY, deltaZ float64)
 }
 
-func NewAccelerometer() (*Accelerometer, error) {
+func NewAccelerometer(fn func(deltaX, deltaY, deltaZ float64)) (*Accelerometer, error) {
 	panic("not yet implemented")
-}
-
-func (a *Accelerometer) HandleFunc(fn func(deltaX, deltaY, deltaZ float64)) {
-	a.fn = fn
 }
 
 func (a *Accelerometer) Stop() error {
@@ -33,12 +27,8 @@ type Gyroscope struct {
 	fn func(roll, pitch, yaw float64)
 }
 
-func NewGyroscope() (*Gyroscope, error) {
+func NewGyroscope(fn func(roll, pitch, yaw float64)) (*Gyroscope, error) {
 	panic("not yet implemented")
-}
-
-func (g *Gyroscope) HandleFunc(fn func(roll, pitch, yaw float64)) {
-	g.fn = fn
 }
 
 func (g *Gyroscope) Stop() error {
@@ -49,12 +39,8 @@ type Magnetometer struct {
 	fn func(azimut, pitch, roll float64)
 }
 
-func NewMagnetometer() (*Magnetometer, error) {
+func NewMagnetometer(fn func(azimut, pitch, roll float64)) (*Magnetometer, error) {
 	panic("not yet implemented")
-}
-
-func (m *Magnetometer) HandleFunc(fn func(azimut, pitch, roll float64)) {
-	m.fn = fn
 }
 
 func (m *Magnetometer) Stop() error {

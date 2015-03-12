@@ -4,18 +4,11 @@
 
 package sensors
 
-type Location struct {
-	Latitude  float64
-	Longitude float64
-	Altitude  float64
-	Accuracy  float64
-}
-
 type Accelerometer struct {
 	fn func(deltaX, deltaY, deltaZ float64)
 }
 
-func NewAccelerometer(fn func(deltaX, deltaY, deltaZ float64)) (*Accelerometer, error) {
+func NewAccelerometer(distance float64, fn func(deltaX, deltaY, deltaZ float64)) (*Accelerometer, error) {
 	panic("not yet implemented")
 }
 

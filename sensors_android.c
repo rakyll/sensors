@@ -24,7 +24,14 @@ JNIEXPORT void JNICALL Java_com_Threading_ThreadActivity_stop(JNIEnv *env, jclas
   stopping = 1;
 }
 
-void start_a() {
+typedef struct AccelerometerEvent {
+  int64_t timestamp;
+  float x;
+  float y;
+  float z;
+} AccelerometerEvent;
+
+void startAccelerometer() {
   aLooper = ALooper_forThread();
   if (aLooper == NULL) {
     aLooper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
@@ -33,20 +40,29 @@ void start_a() {
     manager = ASensorManager_getInstance();
   }
   if (aSensor == NULL) {
+    // TODO(jbd): Detect the case when the device doesn't have an accelerometer sensor.
     aSensor = ASensorManager_getDefaultSensor(manager, ASENSOR_TYPE_ACCELEROMETER);
   }
   aEventQueue = ASensorManager_createEventQueue(manager, aLooper, LOOPER_ID_ACCELEROMETER, NULL, NULL);
   ASensorEventQueue_enableSensor(aEventQueue, aSensor);
-  ASensorEventQueue_setEventRate(aEventQueue, aSensor, (1000L/100)*1000);
+  ASensorEventQueue_setEventRate(aEventQueue, aSensor, (1000L/10)*1000);
+}
 
+AccelerometerEvent* pollAccelerometer() {
   int id;  // Identifier.
   int events;
   ASensorEvent event;
-  while ((id = ALooper_pollAll(-1, NULL, &events, NULL) >= 0)) {
-    if (id == LOOPER_ID_ACCELEROMETER) {
+  AccelerometerEvent* e = NULL;
+  if ((id = ALooper_pollOnce(-1, NULL, &events, NULL)) >= 0) {
+     if (id == LOOPER_ID_ACCELEROMETER) {
       ASensorEvent event;
-      while (ASensorEventQueue_getEvents(aEventQueue, &event, 1) > 0 && !stopping) {
-        LOG_INFO("=======================%f %f %f", event.acceleration.x, event.acceleration.y, event.acceleration.z);
+      if (ASensorEventQueue_getEvents(aEventQueue, &event, 1) > 0 && !stopping) {
+        e = (AccelerometerEvent*)malloc(sizeof(struct AccelerometerEvent));
+        e->timestamp = event.timestamp;
+        e->x = event.acceleration.x;
+        e->y = event.acceleration.y;
+        e->z = event.acceleration.z;
+        return e;
       }
     }
      if (stopping) {
@@ -54,4 +70,5 @@ void start_a() {
       ALooper_release(aLooper);
     }
   }
+  return e;
 }

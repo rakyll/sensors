@@ -3,14 +3,31 @@ package sensors
 /*
 #cgo LDFLAGS: -llog -landroid
 
-#include <android/log.h>
+#include <stdlib.h>
+#include <android/sensor.h>
 
-int start() {
-  start_a();
-}
+typedef struct AccelerometerEvent {
+  int64_t timestamp;
+  float x;
+  float y;
+  float z;
+} AccelerometerEvent;
+
+void startAccelerometer();
+AccelerometerEvent* pollAccelerometer();
+
 */
 import "C"
+import "unsafe"
+import "fmt"
 
 func Start() {
-	go C.start()
+	go func() {
+		C.startAccelerometer()
+		for {
+			ev := C.pollAccelerometer()
+			fmt.Println(ev.x, ev.y, ev.z)
+			C.free(unsafe.Pointer(ev))
+		}
+	}()
 }

@@ -24,6 +24,7 @@ JNIEXPORT void JNICALL Java_com_Threading_ThreadActivity_stop(JNIEnv *env, jclas
   stopping = 1;
 }
 
+// Wrapping ASensorEvent, because cgo doesn't support unions.
 typedef struct AccelerometerEvent {
   int64_t timestamp;
   float x;

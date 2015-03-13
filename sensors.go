@@ -8,7 +8,7 @@ type Accelerometer struct {
 	fn func(deltaX, deltaY, deltaZ float64)
 }
 
-func NewAccelerometer(distance float64, fn func(deltaX, deltaY, deltaZ float64)) (*Accelerometer, error) {
+func NewAccelerometer(fn func(deltaX, deltaY, deltaZ float64)) (*Accelerometer, error) {
 	panic("not yet implemented")
 }
 

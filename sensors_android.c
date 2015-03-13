@@ -45,6 +45,11 @@ void startAccelerometer() {
   ASensorEventQueue_setEventRate(aEventQueue, aSensor, (1000L/SAMPLES_PER_SEC_ACCELEROMETER)*1000);
 }
 
+void destroyAccelerometer() {
+  ASensorManager_destroyEventQueue(manager, aEventQueue);
+  ALooper_release(aLooper);
+}
+
 AccelerometerEvent* pollAccelerometer() {
   int id;  // Identifier.
   int events;
@@ -63,8 +68,7 @@ AccelerometerEvent* pollAccelerometer() {
       }
     }
      if (stopping) {
-      ASensorManager_destroyEventQueue(manager, aEventQueue);
-      ALooper_release(aLooper);
+      destroyAccelerometer();
     }
   }
   return e;

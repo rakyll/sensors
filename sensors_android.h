@@ -14,6 +14,7 @@ typedef struct AccelerometerEvent {
 } AccelerometerEvent;
 
 void startAccelerometer();
+void destroyAccelerometer();
 AccelerometerEvent* pollAccelerometer();
 
 #endif

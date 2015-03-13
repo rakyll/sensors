@@ -8,7 +8,11 @@
 #include <android/log.h>
 #include <android/sensor.h>
 
+#include "sensors_android.h"
+
 #define LOG_INFO(...) ((void)__android_log_print(ANDROID_LOG_INFO, "Go/Sensors", __VA_ARGS__))
+
+#define SAMPLES_PER_SEC_ACCELEROMETER 50
 
 #define LOOPER_ID_ACCELEROMETER 1
 
@@ -24,14 +28,6 @@ JNIEXPORT void JNICALL Java_com_Threading_ThreadActivity_stop(JNIEnv *env, jclas
   stopping = 1;
 }
 
-// Wrapping ASensorEvent, because cgo doesn't support unions.
-typedef struct AccelerometerEvent {
-  int64_t timestamp;
-  float x;
-  float y;
-  float z;
-} AccelerometerEvent;
-
 void startAccelerometer() {
   aLooper = ALooper_forThread();
   if (aLooper == NULL) {
@@ -46,7 +42,7 @@ void startAccelerometer() {
   }
   aEventQueue = ASensorManager_createEventQueue(manager, aLooper, LOOPER_ID_ACCELEROMETER, NULL, NULL);
   ASensorEventQueue_enableSensor(aEventQueue, aSensor);
-  ASensorEventQueue_setEventRate(aEventQueue, aSensor, (1000L/10)*1000);
+  ASensorEventQueue_setEventRate(aEventQueue, aSensor, (1000L/SAMPLES_PER_SEC_ACCELEROMETER)*1000);
 }
 
 AccelerometerEvent* pollAccelerometer() {

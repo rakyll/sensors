@@ -12,7 +12,7 @@
 
 #define LOG_INFO(...) ((void)__android_log_print(ANDROID_LOG_INFO, "Go/Sensors", __VA_ARGS__))
 
-#define SAMPLES_PER_SEC_ACCELEROMETER 50
+#define SAMPLES_PER_SEC_ACCELEROMETER 10
 
 #define LOOPER_ID_ACCELEROMETER 1
 
@@ -34,21 +34,13 @@ JNIEXPORT void JNICALL Java_com_Threading_ThreadActivity_stop(JNIEnv *env, jclas
 
 void initSensors() {
   manager = ASensorManager_getInstance();
+}
+
+void startAccelerometer() {
   aLooper = ALooper_forThread();
   if (aLooper == NULL) {
     aLooper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
   }
-  gLooper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
-  if (gLooper == NULL) {
-    gLooper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
-  }
-  mLooper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
-  if (mLooper == NULL) {
-    mLooper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
-  }
-}
-
-void startAccelerometer() {
   const ASensor* sensor = ASensorManager_getDefaultSensor(manager, ASENSOR_TYPE_ACCELEROMETER);
   aEventQueue = ASensorManager_createEventQueue(manager, aLooper, LOOPER_ID_ACCELEROMETER, NULL, NULL);
   ASensorEventQueue_enableSensor(aEventQueue, sensor);
@@ -61,8 +53,7 @@ void destroyAccelerometer() {
 }
 
 AccelerometerEvent* pollAccelerometer() {
-  // TODO(jbd): Investigate how much of a bottleneck
-  // to poll from the event queue one by one.
+  // TODO(jbd): It is a bottleneck to poll from the event queue one by one.
   int id;
   int events;
   ASensorEvent event;

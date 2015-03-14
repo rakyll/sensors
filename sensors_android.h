@@ -13,6 +13,7 @@ typedef struct AccelerometerEvent {
   float z;
 } AccelerometerEvent;
 
+void initSensors();
 void startAccelerometer();
 void destroyAccelerometer();
 AccelerometerEvent* pollAccelerometer();

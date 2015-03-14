@@ -14,15 +14,34 @@ package sensors
 */
 import "C"
 import "unsafe"
-import "fmt"
 
-func Start() {
+var (
+	aStop chan struct{}
+)
+
+func init() {
+	C.initSensors()
+}
+
+func startAccelerometer(fn func(deltaX, deltaY, deltaZ float64)) {
+	aStop = make(chan struct{})
 	go func() {
+		// TODO(jbd): Need to runtime.LockOSThread?
 		C.startAccelerometer()
 		for {
-			ev := C.pollAccelerometer()
-			fmt.Println(ev.x, ev.y, ev.z)
-			C.free(unsafe.Pointer(ev))
+			select {
+			case <-aStop:
+				return
+			default:
+				ev := C.pollAccelerometer()
+				fn(float64(ev.x), float64(ev.y), float64(ev.z))
+				C.free(unsafe.Pointer(ev))
+			}
 		}
 	}()
+}
+
+func stopAccelerometer() {
+	aStop <- struct{}{}
+	C.destroyAccelerometer()
 }

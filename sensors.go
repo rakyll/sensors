@@ -5,11 +5,13 @@
 package sensors
 
 func StartAccelerometer(fn func(deltaX, deltaY, deltaZ float64)) error {
-	panic("not yet implemented")
+	startAccelerometer(fn)
+	return nil
 }
 
 func StopAccelerometer() error {
-	panic("not yet implemented")
+	stopAccelerometer()
+	return nil
 }
 
 func StartGyroscope(fn func(roll, pitch, yaw float64)) error {

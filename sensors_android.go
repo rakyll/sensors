@@ -13,7 +13,11 @@ package sensors
 #include "sensors_android.h"
 */
 import "C"
-import "unsafe"
+import (
+	"runtime"
+	"unsafe"
+)
+import "time"
 
 var (
 	aStop chan struct{}
@@ -27,6 +31,7 @@ func startAccelerometer(fn func(deltaX, deltaY, deltaZ float64)) {
 	aStop = make(chan struct{})
 	go func() {
 		// TODO(jbd): Need to runtime.LockOSThread?
+		runtime.LockOSThread()
 		C.startAccelerometer()
 		for {
 			select {
@@ -37,6 +42,7 @@ func startAccelerometer(fn func(deltaX, deltaY, deltaZ float64)) {
 				fn(float64(ev.x), float64(ev.y), float64(ev.z))
 				C.free(unsafe.Pointer(ev))
 			}
+			time.Sleep(time.Microsecond)
 		}
 	}()
 }

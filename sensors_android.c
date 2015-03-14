@@ -21,28 +21,38 @@ int stopping = 0; // poll event queues until stopping is set.
 ASensorManager* manager = NULL;
 
 ALooper* aLooper = NULL;
-ASensor* aSensor = NULL;
+ALooper* gLooper = NULL;
+ALooper* mLooper = NULL;
+
 ASensorEventQueue* aEventQueue = NULL;
+ASensorEventQueue* gEventQueue = NULL;
+ASensorEventQueue* mEventQueue = NULL;
 
 JNIEXPORT void JNICALL Java_com_Threading_ThreadActivity_stop(JNIEnv *env, jclass clazz) {
   stopping = 1;
 }
 
-void startAccelerometer() {
+void initSensors() {
+  manager = ASensorManager_getInstance();
   aLooper = ALooper_forThread();
   if (aLooper == NULL) {
     aLooper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
   }
-  if (manager == NULL) {
-    manager = ASensorManager_getInstance();
+  gLooper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
+  if (gLooper == NULL) {
+    gLooper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
   }
-  if (aSensor == NULL) {
-    // TODO(jbd): Detect the case when the device doesn't have an accelerometer sensor.
-    aSensor = ASensorManager_getDefaultSensor(manager, ASENSOR_TYPE_ACCELEROMETER);
+  mLooper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
+  if (mLooper == NULL) {
+    mLooper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
   }
+}
+
+void startAccelerometer() {
+  const ASensor* sensor = ASensorManager_getDefaultSensor(manager, ASENSOR_TYPE_ACCELEROMETER);
   aEventQueue = ASensorManager_createEventQueue(manager, aLooper, LOOPER_ID_ACCELEROMETER, NULL, NULL);
-  ASensorEventQueue_enableSensor(aEventQueue, aSensor);
-  ASensorEventQueue_setEventRate(aEventQueue, aSensor, (1000L/SAMPLES_PER_SEC_ACCELEROMETER)*1000);
+  ASensorEventQueue_enableSensor(aEventQueue, sensor);
+  ASensorEventQueue_setEventRate(aEventQueue, sensor, (1000L/SAMPLES_PER_SEC_ACCELEROMETER)*1000);
 }
 
 void destroyAccelerometer() {
@@ -51,7 +61,9 @@ void destroyAccelerometer() {
 }
 
 AccelerometerEvent* pollAccelerometer() {
-  int id;  // Identifier.
+  // TODO(jbd): Investigate how much of a bottleneck
+  // to poll from the event queue one by one.
+  int id;
   int events;
   ASensorEvent event;
   AccelerometerEvent* e = NULL;

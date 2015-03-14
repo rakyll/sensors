@@ -4,39 +4,27 @@
 
 package sensors
 
-type Accelerometer struct {
-	fn func(deltaX, deltaY, deltaZ float64)
-}
-
-func NewAccelerometer(fn func(deltaX, deltaY, deltaZ float64)) (*Accelerometer, error) {
+func StartAccelerometer(fn func(deltaX, deltaY, deltaZ float64)) error {
 	panic("not yet implemented")
 }
 
-func (a *Accelerometer) Stop() error {
+func StopAccelerometer() error {
 	panic("not yet implemented")
 }
 
-type Gyroscope struct {
-	fn func(roll, pitch, yaw float64)
-}
-
-func NewGyroscope(fn func(roll, pitch, yaw float64)) (*Gyroscope, error) {
+func StartGyroscope(fn func(roll, pitch, yaw float64)) error {
 	panic("not yet implemented")
 }
 
-func (g *Gyroscope) Stop() error {
+func StopGyroscope() error {
 	panic("not yet implemented")
 }
 
-type Magnetometer struct {
-	fn func(azimut, pitch, roll float64)
-}
-
-func NewMagnetometer(fn func(azimut, pitch, roll float64)) (*Magnetometer, error) {
+func StartMagnetometer(fn func(azimut, pitch, roll float64)) error {
 	panic("not yet implemented")
 }
 
-func (m *Magnetometer) Stop() error {
+func StopMagnetometer() error {
 	panic("not yet implemented")
 }
 

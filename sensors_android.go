@@ -15,9 +15,9 @@ package sensors
 import "C"
 import (
 	"runtime"
+	"time"
 	"unsafe"
 )
-import "time"
 
 var (
 	aStop chan struct{}

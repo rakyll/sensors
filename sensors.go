@@ -4,11 +4,16 @@
 
 package sensors
 
+// StartAccelerometer starts the accelerometer and notifies fn with
+// the positional changes in x, y and z axes.
+// Once the accelerometer is no longer in use, it should be stopped
+// by calling StopAccelerometer.
 func StartAccelerometer(fn func(deltaX, deltaY, deltaZ float64)) error {
 	startAccelerometer(fn)
 	return nil
 }
 
+// StopAccelerometer stops the accelerometer and frees the related resources.
 func StopAccelerometer() error {
 	stopAccelerometer()
 	return nil
@@ -48,5 +53,5 @@ const (
 // Connectivity returns the type and the status of the network that is
 // currently in use.
 func Connectivity() (networkType int, status int) {
-	panic("not yet")
+	panic("not yet implemented")
 }

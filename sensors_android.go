@@ -30,7 +30,6 @@ func init() {
 func startAccelerometer(fn func(deltaX, deltaY, deltaZ float64)) {
 	aStop = make(chan struct{})
 	go func() {
-		// TODO(jbd): Need to runtime.LockOSThread?
 		runtime.LockOSThread()
 		C.startAccelerometer()
 		for {

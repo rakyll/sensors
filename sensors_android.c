@@ -12,7 +12,7 @@
 
 #define LOG_INFO(...) ((void)__android_log_print(ANDROID_LOG_INFO, "Go/Sensors", __VA_ARGS__))
 
-#define SAMPLES_PER_SEC_ACCELEROMETER 10
+#define SAMPLES_PER_SEC_ACCELEROMETER 30
 
 #define LOOPER_ID_ACCELEROMETER 1
 

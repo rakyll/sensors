@@ -12,7 +12,7 @@
 
 #define LOG_INFO(...) ((void)__android_log_print(ANDROID_LOG_INFO, "Go/Sensors", __VA_ARGS__))
 
-#define SAMPLES_PER_SEC_ACCELEROMETER 30
+#define SAMPLES_PER_SEC_ACCELEROMETER 10
 
 #define LOOPER_ID_ACCELEROMETER 1
 
@@ -44,7 +44,7 @@ void startAccelerometer() {
   const ASensor* sensor = ASensorManager_getDefaultSensor(manager, ASENSOR_TYPE_ACCELEROMETER);
   aEventQueue = ASensorManager_createEventQueue(manager, aLooper, LOOPER_ID_ACCELEROMETER, NULL, NULL);
   ASensorEventQueue_enableSensor(aEventQueue, sensor);
-  ASensorEventQueue_setEventRate(aEventQueue, sensor, (1000L/SAMPLES_PER_SEC_ACCELEROMETER)*1000);
+  ASensorEventQueue_setEventRate(aEventQueue, sensor, SAMPLES_PER_SEC_ACCELEROMETER);
 }
 
 void destroyAccelerometer() {

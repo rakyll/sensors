@@ -38,10 +38,14 @@ func startAccelerometer(fn func(deltaX, deltaY, deltaZ float64)) {
 				return
 			default:
 				ev := C.pollAccelerometer()
+				if ev == nil {
+					continue
+				}
 				fn(float64(ev.x), float64(ev.y), float64(ev.z))
 				C.free(unsafe.Pointer(ev))
 			}
-			time.Sleep(time.Microsecond) // allow goroutine to be preempted.
+			// allow the current goroutine to be preempted.
+			time.Sleep(100 * time.Microsecond)
 		}
 	}()
 }

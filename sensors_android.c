@@ -54,6 +54,7 @@ void destroyAccelerometer() {
 
 AccelerometerEvent* pollAccelerometer() {
   // TODO(jbd): It is a bottleneck to poll from the event queue one by one.
+  // But we can't buffer extensively either, the latency is our priority.
   int id;
   int events;
   ASensorEvent event;

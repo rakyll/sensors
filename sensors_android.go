@@ -41,7 +41,7 @@ func startAccelerometer(fn func(deltaX, deltaY, deltaZ float64)) {
 				fn(float64(ev.x), float64(ev.y), float64(ev.z))
 				C.free(unsafe.Pointer(ev))
 			}
-			time.Sleep(time.Microsecond)
+			time.Sleep(time.Microsecond) // allow goroutine to be preempted.
 		}
 	}()
 }

@@ -10,20 +10,20 @@ package sensors
 // by calling StopAccelerometer.
 func StartAccelerometer(fn func(deltaX, deltaY, deltaZ float64)) error {
 	startAccelerometer(fn)
+	// TODO(jbd): Return error if no default accelerometer is found.
 	return nil
 }
 
 // StopAccelerometer stops the accelerometer and frees the related resources.
-func StopAccelerometer() error {
+func StopAccelerometer() {
 	stopAccelerometer()
-	return nil
 }
 
 func StartGyroscope(fn func(roll, pitch, yaw float64)) error {
 	panic("not yet implemented")
 }
 
-func StopGyroscope() error {
+func StopGyroscope() {
 	panic("not yet implemented")
 }
 
@@ -31,7 +31,7 @@ func StartMagnetometer(fn func(azimut, pitch, roll float64)) error {
 	panic("not yet implemented")
 }
 
-func StopMagnetometer() error {
+func StopMagnetometer() {
 	panic("not yet implemented")
 }
 

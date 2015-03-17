@@ -21,6 +21,20 @@ type AccelerometerEvent struct {
 	Timestamp int64
 }
 
+type GyroscopeEvent struct {
+	Roll      float64
+	Pitch     float64
+	Yaw       float64
+	Timestamp int64
+}
+
+type MagnetometerEvent struct {
+	Azimut    float64
+	Pitch     float64
+	Roll      float64
+	Timestamp int64
+}
+
 // StartAccelerometer starts the accelerometer.
 // Once the accelerometer is no longer in use, it should be stopped
 // by calling StopAccelerometer.
@@ -66,7 +80,7 @@ func StartGyroscope(samplesPerSec int) error {
 	panic("not yet implemented")
 }
 
-func PollGyroscope() (roll, pitch, yaw float64) {
+func PollGyroscope(n int) (roll, pitch, yaw float64) {
 	panic("not yet implemented")
 }
 

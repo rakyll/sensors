@@ -30,6 +30,12 @@ func StartAccelerometer(samplesPerSec int) error {
 	return nil
 }
 
+// PollAccelerometer polls a new event for the accelerometer event queue.
+// It blocks until an event is available.
+// A call to StartAccelerometer is mandatory to start the accelerometer
+// sensor and initialize its event queue.
+// You have to call PollAccelerometer from the same OS thread that the
+// accelerometer is started on.
 func PollAccelerometer() (deltaX, deltaY, deltaZ float64) {
 	return pollAccelerometer()
 }

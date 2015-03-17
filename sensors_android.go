@@ -13,7 +13,11 @@ package sensors
 #include "sensors_android.h"
 */
 import "C"
-import "errors"
+import (
+	"errors"
+	"time"
+)
+import "unsafe"
 
 func init() {
 	C.initSensors()
@@ -26,9 +30,30 @@ func startAccelerometer(samplesPerSec int) error {
 	return nil
 }
 
-func pollAccelerometer() (deltaX, deltaY, deltaZ float64) {
-	e := C.pollAccelerometer()
-	return float64(e.x), float64(e.y), float64(e.z)
+func pollAccelerometer(n int) []AccelerometerEvent {
+	r := make([]AccelerometerEvent, n)
+
+	var ptr *C.AccelerometerEvent
+	ptr = C.pollAccelerometer(C.int(n))
+
+	start := unsafe.Pointer(ptr)
+	var item C.AccelerometerEvent
+
+	for i := 0; i < n; i++ {
+		current := (*C.AccelerometerEvent)(unsafe.Pointer(uintptr(start) + uintptr(i)*unsafe.Sizeof(item)))
+		if current == nil {
+			break
+		}
+		r[i] = AccelerometerEvent{
+			DeltaX:    float64(current.x),
+			DeltaY:    float64(current.y),
+			DeltaZ:    float64(current.z),
+			CreatedAt: time.Unix(int64(current.timestamp), 0),
+		}
+	}
+
+	C.free(start)
+	return r
 }
 
 func stopAccelerometer() error {

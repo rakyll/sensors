@@ -56,24 +56,25 @@ void destroyAccelerometer() {
   ALooper_release(aLooper);
 }
 
-AccelerometerEvent pollAccelerometer() {
+AccelerometerEvent* pollAccelerometer(int n) {
   int id;
   int events;
   ASensorEvent event;
-  AccelerometerEvent dest;
-  // TODO(jbd): Poll multiple events.
-  if ((id = ALooper_pollAll(-1, NULL, &events, NULL)) >= 0) {
+  // TODO(jbd): Timeout if pollAll blocks longer than it should.
+  AccelerometerEvent* dest = (AccelerometerEvent*)malloc(sizeof(struct AccelerometerEvent) * n);
+  int i;
+  while (i < n && (id = ALooper_pollAll(-1, NULL, &events, NULL)) >= 0 && !stopping) {
      if (id == LOOPER_ID_ACCELEROMETER) {
-      int count = ASensorEventQueue_getEvents(aEventQueue, &event, 1);
-      if (count > 0 && !stopping) {
-        dest.timestamp = event.timestamp;
-        dest.x = event.acceleration.x;
-        dest.y = event.acceleration.y;
-        dest.z = event.acceleration.z;
-        return dest;
+      ASensorEvent event;
+      if(ASensorEventQueue_getEvents(aEventQueue, &event, 1)) {
+        dest[i].x = event.acceleration.x;
+        dest[i].y = event.acceleration.y;
+        dest[i].z = event.acceleration.z;
+        dest[i].timestamp = event.timestamp;
       }
+      i++;
     }
-     if (stopping) {
+    if (stopping) {
       destroyAccelerometer();
     }
   }

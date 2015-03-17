@@ -7,12 +7,20 @@ package sensors
 import (
 	"errors"
 	"sync"
+	"time"
 )
 
 var (
 	muAStarted sync.Mutex
 	aStarted   = false
 )
+
+type AccelerometerEvent struct {
+	DeltaX    float64
+	DeltaY    float64
+	DeltaZ    float64
+	CreatedAt time.Time
+}
 
 // StartAccelerometer starts the accelerometer.
 // Once the accelerometer is no longer in use, it should be stopped
@@ -37,6 +45,8 @@ func StartAccelerometer(samplesPerSec int) error {
 // You have to call this function from the same OS thread that the
 // accelerometer has been started. Use runtime.LockOSThread to lock the
 // current goroutine to a particular OS thread.
+func PollAccelerometer(n int) []AccelerometerEvent {
+	return pollAccelerometer(n)
 }
 
 // StopAccelerometer stops the accelerometer and frees the related resources.

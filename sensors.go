@@ -7,7 +7,6 @@ package sensors
 import (
 	"errors"
 	"sync"
-	"time"
 )
 
 var (
@@ -19,7 +18,7 @@ type AccelerometerEvent struct {
 	DeltaX    float64
 	DeltaY    float64
 	DeltaZ    float64
-	CreatedAt time.Time
+	Timestamp int64
 }
 
 // StartAccelerometer starts the accelerometer.

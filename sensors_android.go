@@ -13,10 +13,8 @@ package sensors
 #include "sensors_android.h"
 */
 import "C"
-import (
-	"errors"
-	"time"
-)
+import "errors"
+
 import "unsafe"
 
 func init() {
@@ -48,7 +46,7 @@ func pollAccelerometer(n int) []AccelerometerEvent {
 			DeltaX:    float64(current.x),
 			DeltaY:    float64(current.y),
 			DeltaZ:    float64(current.z),
-			CreatedAt: time.Unix(int64(current.timestamp), 0),
+			Timestamp: int64(current.timestamp),
 		}
 	}
 

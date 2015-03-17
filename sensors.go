@@ -30,14 +30,13 @@ func StartAccelerometer(samplesPerSec int) error {
 	return nil
 }
 
-// PollAccelerometer polls a new event for the accelerometer event queue.
-// It blocks until an event is available.
+// PollAccelerometer polls n new events from the accelerometer event queue.
+// It will block until n events are available to the sensor event queue.
 // A call to StartAccelerometer is mandatory to start the accelerometer
 // sensor and initialize its event queue.
-// You have to call PollAccelerometer from the same OS thread that the
-// accelerometer is started on.
-func PollAccelerometer() (deltaX, deltaY, deltaZ float64) {
-	return pollAccelerometer()
+// You have to call this function from the same OS thread that the
+// accelerometer has been started. Use runtime.LockOSThread to lock the
+// current goroutine to a particular OS thread.
 }
 
 // StopAccelerometer stops the accelerometer and frees the related resources.

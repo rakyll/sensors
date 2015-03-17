@@ -54,19 +54,27 @@ func StopAccelerometer() error {
 	return nil
 }
 
-func StartGyroscope(fn func(roll, pitch, yaw float64)) error {
+func StartGyroscope(samplesPerSec int) error {
 	panic("not yet implemented")
 }
 
-func StopGyroscope() {
+func PollGyroscope() (roll, pitch, yaw float64) {
 	panic("not yet implemented")
 }
 
-func StartMagnetometer(fn func(azimut, pitch, roll float64)) error {
+func StopGyroscope() error {
 	panic("not yet implemented")
 }
 
-func StopMagnetometer() {
+func StartMagnetometer(samplesPerSec int) error {
+	panic("not yet implemented")
+}
+
+func PollMagnetometer(azimut, pitch, roll float64) {
+	panic("not yet implemented")
+}
+
+func StopMagnetometer() error {
 	panic("not yet implemented")
 }
 

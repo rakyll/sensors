@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// Package sensors provides sensor events from various movement and position sensors.
 package sensors
 
 import (
@@ -15,13 +16,20 @@ var (
 	aStarted   = false
 )
 
-// Note: Per declared on https://code.google.com/p/android/issues/detail?id=56561,
-// sensor event timestamps are not a unix timestamp.
-
+// AccelerometerEvent represents data returned from an accelerometer sensor.
 type AccelerometerEvent struct {
-	DeltaX    float64
-	DeltaY    float64
-	DeltaZ    float64
+	// DeltaX is the delta movement in the x-axis.
+	DeltaX float64
+
+	// DeltaY is the delta movement in the y-axis.
+	DeltaY float64
+
+	// DeltaZ is the delta movement in the z-axis.
+	DeltaZ float64
+
+	// Timestamp is the time the current event has happened. Timestamps are not
+	// Unix times, they represent a time that's only valid for the device's
+	// default accelerometer sensor.
 	Timestamp int64
 }
 

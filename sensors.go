@@ -14,6 +14,9 @@ var (
 	aStarted   = false
 )
 
+// Note: Per declared on https://code.google.com/p/android/issues/detail?id=56561,
+// sensor event timestamps are not a unix timestamp.
+
 type AccelerometerEvent struct {
 	DeltaX    float64
 	DeltaY    float64

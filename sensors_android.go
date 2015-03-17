@@ -25,9 +25,6 @@ func startAccelerometer(samplesPerSec int) error {
 
 func pollAccelerometer() (deltaX, deltaY, deltaZ float64) {
 	e := C.pollAccelerometer()
-	if e == nil {
-		return 0, 0, 0
-	}
 	return float64(e.x), float64(e.y), float64(e.z)
 }
 

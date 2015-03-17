@@ -13,14 +13,17 @@ package sensors
 #include "sensors_android.h"
 */
 import "C"
+import "errors"
 
 func init() {
 	C.initSensors()
 }
 
 func startAccelerometer(samplesPerSec int) error {
-	C.startAccelerometer(C.int(samplesPerSec))
-	return nil // TODO(jbd): Return error if no default sensor found.
+	if ecode := C.startAccelerometer(C.int(samplesPerSec)); ecode == C.ENOSENSOR {
+		return errors.New("sensors: no accelerometer sensor on the device")
+	}
+	return nil
 }
 
 func pollAccelerometer() (deltaX, deltaY, deltaZ float64) {

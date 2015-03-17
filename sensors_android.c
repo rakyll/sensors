@@ -34,17 +34,21 @@ void initSensors() {
   manager = ASensorManager_getInstance();
 }
 
-void startAccelerometer(int sampleRate) {
+int startAccelerometer(int sampleRate) {
   aLooper = ALooper_forThread();
   if (aLooper == NULL) {
     aLooper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
   }
   if (aEventQueue == NULL) {
     const ASensor* sensor = ASensorManager_getDefaultSensor(manager, ASENSOR_TYPE_ACCELEROMETER);
+    if (sensor == NULL) {
+      return ENOSENSOR;
+    }
     aEventQueue = ASensorManager_createEventQueue(manager, aLooper, LOOPER_ID_ACCELEROMETER, NULL, NULL);
     ASensorEventQueue_enableSensor(aEventQueue, sensor);
     ASensorEventQueue_setEventRate(aEventQueue, sensor, sampleRate);
   }
+  return 0;
  }
 
 void destroyAccelerometer() {

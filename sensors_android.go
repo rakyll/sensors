@@ -13,44 +13,25 @@ package sensors
 #include "sensors_android.h"
 */
 import "C"
-import (
-	"runtime"
-	"time"
-	"unsafe"
-)
-
-var (
-	aStop chan struct{}
-)
 
 func init() {
 	C.initSensors()
 }
 
-func startAccelerometer(fn func(deltaX, deltaY, deltaZ float64)) {
-	aStop = make(chan struct{})
-	go func() {
-		runtime.LockOSThread()
-		C.startAccelerometer()
-		for {
-			select {
-			case <-aStop:
-				return
-			default:
-				ev := C.pollAccelerometer()
-				if ev == nil {
-					continue
-				}
-				fn(float64(ev.x), float64(ev.y), float64(ev.z))
-				C.free(unsafe.Pointer(ev))
-			}
-			// allow the current goroutine to be preempted.
-			time.Sleep(100 * time.Microsecond)
-		}
-	}()
+func startAccelerometer(samplesPerSec int) error {
+	C.startAccelerometer(C.int(samplesPerSec))
+	return nil // TODO(jbd): Return error if no default sensor found.
 }
 
-func stopAccelerometer() {
-	aStop <- struct{}{}
+func pollAccelerometer() (deltaX, deltaY, deltaZ float64) {
+	e := C.pollAccelerometer()
+	if e == nil {
+		return 0, 0, 0
+	}
+	return float64(e.x), float64(e.y), float64(e.z)
+}
+
+func stopAccelerometer() error {
 	C.destroyAccelerometer()
+	return nil
 }

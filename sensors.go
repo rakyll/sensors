@@ -4,19 +4,48 @@
 
 package sensors
 
-// StartAccelerometer starts the accelerometer and notifies fn with
-// the positional changes in x, y and z axes.
+import (
+	"errors"
+	"sync"
+)
+
+var (
+	muAStarted sync.Mutex
+	aStarted   = false
+)
+
+// StartAccelerometer starts the accelerometer.
 // Once the accelerometer is no longer in use, it should be stopped
 // by calling StopAccelerometer.
-func StartAccelerometer(fn func(deltaX, deltaY, deltaZ float64)) error {
-	startAccelerometer(fn)
-	// TODO(jbd): Return error if no default accelerometer is found.
+func StartAccelerometer(samplesPerSec int) error {
+	muAStarted.Lock()
+	defer muAStarted.Unlock()
+	if aStarted {
+		return errors.New("sensors: accelerometer already started")
+	}
+	if err := startAccelerometer(samplesPerSec); err != nil {
+		return err
+	}
+	aStarted = true
 	return nil
 }
 
+func PollAccelerometer() (deltaX, deltaY, deltaZ float64) {
+	return pollAccelerometer()
+}
+
 // StopAccelerometer stops the accelerometer and frees the related resources.
-func StopAccelerometer() {
-	stopAccelerometer()
+func StopAccelerometer() error {
+	muAStarted.Lock()
+	defer muAStarted.Unlock()
+	if !aStarted {
+		return errors.New("sensors: accelerometer hasn't been started")
+	}
+	if err := stopAccelerometer(); err != nil {
+		return err
+	}
+	aStarted = false
+	return nil
 }
 
 func StartGyroscope(fn func(roll, pitch, yaw float64)) error {

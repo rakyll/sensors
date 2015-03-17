@@ -34,7 +34,7 @@ void initSensors() {
   manager = ASensorManager_getInstance();
 }
 
-int startAccelerometer(int sampleRate) {
+int startAccelerometer(int32_t usec) {
   aLooper = ALooper_forThread();
   if (aLooper == NULL) {
     aLooper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
@@ -46,7 +46,7 @@ int startAccelerometer(int sampleRate) {
     }
     aEventQueue = ASensorManager_createEventQueue(manager, aLooper, LOOPER_ID_ACCELEROMETER, NULL, NULL);
     ASensorEventQueue_enableSensor(aEventQueue, sensor);
-    ASensorEventQueue_setEventRate(aEventQueue, sensor, sampleRate);
+    ASensorEventQueue_setEventRate(aEventQueue, sensor, usec);
   }
   return 0;
  }

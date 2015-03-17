@@ -16,7 +16,7 @@ typedef struct AccelerometerEvent {
 } AccelerometerEvent;
 
 void initSensors();
-int startAccelerometer(int samplesPerSec);
+int startAccelerometer(int32_t usec);
 AccelerometerEvent* pollAccelerometer(int n);
 void destroyAccelerometer();
 

@@ -7,6 +7,7 @@ package sensors
 import (
 	"errors"
 	"sync"
+	"time"
 )
 
 var (
@@ -41,13 +42,15 @@ type MagnetometerEvent struct {
 // StartAccelerometer starts the accelerometer.
 // Once the accelerometer is no longer in use, it should be stopped
 // by calling StopAccelerometer.
-func StartAccelerometer(samplesPerSec int) error {
+// Delay determines the wait-time to read the next sample from the sensor.
+// Its lower limit is bound by the sensor's output bandwidth.
+func StartAccelerometer(delay time.Duration) error {
 	muAStarted.Lock()
 	defer muAStarted.Unlock()
 	if aStarted {
 		return errors.New("sensors: accelerometer already started")
 	}
-	if err := startAccelerometer(samplesPerSec); err != nil {
+	if err := startAccelerometer(delay.Nanoseconds() * 1000); err != nil {
 		return err
 	}
 	aStarted = true
@@ -79,7 +82,7 @@ func StopAccelerometer() error {
 	return nil
 }
 
-func StartGyroscope(samplesPerSec int) error {
+func StartGyroscope(delay time.Duration) error {
 	panic("not yet implemented")
 }
 
@@ -91,7 +94,7 @@ func StopGyroscope() error {
 	panic("not yet implemented")
 }
 
-func StartMagnetometer(samplesPerSec int) error {
+func StartMagnetometer(delay time.Duration) error {
 	panic("not yet implemented")
 }
 

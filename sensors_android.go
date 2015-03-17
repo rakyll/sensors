@@ -21,8 +21,8 @@ func init() {
 	C.initSensors()
 }
 
-func startAccelerometer(samplesPerSec int) error {
-	if ecode := C.startAccelerometer(C.int(samplesPerSec)); ecode == C.ENOSENSOR {
+func startAccelerometer(delay int64) error {
+	if ecode := C.startAccelerometer(C.int32_t(delay)); ecode == C.ENOSENSOR {
 		return errors.New("sensors: no accelerometer sensor on the device")
 	}
 	return nil

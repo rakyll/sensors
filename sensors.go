@@ -9,7 +9,7 @@ import "time"
 
 // Accelerometer represents an accelerometer sensor.
 type Accelerometer struct {
-	s interface{}
+	s interface{} // platform-specific implementation of the underlying sensor
 }
 
 // StartAccelerometer starts a new accelerometer.
@@ -28,7 +28,7 @@ func StartAccelerometer(delay time.Duration) (*Accelerometer, error) {
 // Read reads new events from the accelerometer event queue.
 // It will block until len(e) events are retrieved.
 // e is a series of 3-vectors. Each vector contains the acceleration
-// force in m/s2 that is applied to the device in x, y and z axes.
+// force in m/s2 that is applied to the device in x-, y- and z-axes.
 //
 // 	e[i][0]: acceleration force in x-axis
 // 	e[i][1]: acceleration force in y-axis

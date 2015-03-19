@@ -13,7 +13,10 @@ package sensors
 #include "sensors_android.h"
 */
 import "C"
-import "errors"
+import (
+	"errors"
+	"time"
+)
 import "unsafe"
 
 var nextLooperID int
@@ -28,8 +31,8 @@ type sensor struct {
 	queue    *C.ASensorEventQueue
 }
 
-func startAccelerometer(delay int64) (interface{}, error) {
-	return startSensor(C.ASENSOR_TYPE_ACCELEROMETER, delay)
+func startAccelerometer(delay time.Duration) (interface{}, error) {
+	return startSensor(C.ASENSOR_TYPE_ACCELEROMETER, delay.Nanoseconds()*1000)
 }
 
 func closeAccelerometer(s interface{}) error {

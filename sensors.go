@@ -18,7 +18,7 @@ type Accelerometer struct {
 // Delay determines the wait-time to read the next sample from the sensor.
 // Its lower limit is bound by the sensor's output bandwidth.
 func StartAccelerometer(delay time.Duration) (*Accelerometer, error) {
-	s, err := startAccelerometer(delay.Nanoseconds() * 1000)
+	s, err := startAccelerometer(delay)
 	if err != nil {
 		return nil, err
 	}

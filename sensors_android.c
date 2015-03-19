@@ -18,64 +18,49 @@ int stopping = 0; // poll event queues until stopping is set.
 
 ASensorManager* manager = NULL;
 
-ALooper* aLooper = NULL;
-ALooper* gLooper = NULL;
-ALooper* mLooper = NULL;
+ALooper* looper = NULL;
 
-ASensorEventQueue* aEventQueue = NULL;
-ASensorEventQueue* gEventQueue = NULL;
-ASensorEventQueue* mEventQueue = NULL;
-
-JNIEXPORT void JNICALL Java_com_Threading_ThreadActivity_stop(JNIEnv *env, jclass clazz) {
-  stopping = 1;
-}
-
-void initSensors() {
+void android_initSensors() {
   manager = ASensorManager_getInstance();
 }
 
-int startAccelerometer(int32_t usec) {
-  aLooper = ALooper_forThread();
-  if (aLooper == NULL) {
-    aLooper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
+ASensorEventQueue* android_startSensorQueue(int looperId, int type, int32_t usec) {
+  if (looper == NULL) {
+    looper = ALooper_forThread();
   }
-  if (aEventQueue == NULL) {
-    const ASensor* sensor = ASensorManager_getDefaultSensor(manager, ASENSOR_TYPE_ACCELEROMETER);
-    if (sensor == NULL) {
-      return ENOSENSOR;
-    }
-    aEventQueue = ASensorManager_createEventQueue(manager, aLooper, LOOPER_ID_ACCELEROMETER, NULL, NULL);
-    ASensorEventQueue_enableSensor(aEventQueue, sensor);
-    ASensorEventQueue_setEventRate(aEventQueue, sensor, usec);
+  if (looper == NULL) {
+    looper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
   }
-  return 0;
+  const ASensor* sensor = ASensorManager_getDefaultSensor(manager, type);
+  if (sensor == NULL) {
+    return NULL;
+  }
+  ASensorEventQueue* q = ASensorManager_createEventQueue(manager, looper, looperId, NULL, NULL);
+  ASensorEventQueue_enableSensor(q, sensor);
+  ASensorEventQueue_setEventRate(q, sensor, usec);
+  return q;
  }
 
-void destroyAccelerometer() {
-  ASensorManager_destroyEventQueue(manager, aEventQueue);
-  ALooper_release(aLooper);
+void android_destroySensorQueue(ASensorEventQueue* q) {
+  ASensorManager_destroyEventQueue(manager, q);
 }
 
-AccelerometerEvent* pollAccelerometer(int n) {
+SensorEvent* android_readSensorQueue(int looperId, ASensorEventQueue* q, int n) {
   int id;
   int events;
   ASensorEvent event;
   // TODO(jbd): Timeout if pollAll blocks longer than it should.
-  AccelerometerEvent* dest = (AccelerometerEvent*)malloc(sizeof(struct AccelerometerEvent) * n);
+  SensorEvent* dest = (SensorEvent*)malloc(sizeof(struct SensorEvent) * n);
   int i;
-  while (i < n && (id = ALooper_pollAll(-1, NULL, &events, NULL)) >= 0 && !stopping) {
-     if (id == LOOPER_ID_ACCELEROMETER) {
+  while (i < n && (id = ALooper_pollAll(-1, NULL, &events, NULL)) >= 0) {
+     if (id == looperId) {
       ASensorEvent event;
-      if(ASensorEventQueue_getEvents(aEventQueue, &event, 1)) {
-        dest[i].x = event.acceleration.x;
-        dest[i].y = event.acceleration.y;
-        dest[i].z = event.acceleration.z;
-        dest[i].timestamp = event.timestamp;
+      if(ASensorEventQueue_getEvents(q, &event, 1)) {
+        dest[i].vals[0] = event.acceleration.x;
+        dest[i].vals[1] = event.acceleration.y;
+        dest[i].vals[2] = event.acceleration.z;
       }
       i++;
-    }
-    if (stopping) {
-      destroyAccelerometer();
     }
   }
   return dest;

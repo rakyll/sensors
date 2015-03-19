@@ -14,47 +14,62 @@ package sensors
 */
 import "C"
 import "errors"
-
 import "unsafe"
 
+var nextLooperID int
+
 func init() {
-	C.initSensors()
+	C.android_initSensors()
 }
 
-func startAccelerometer(delay int64) error {
-	if ecode := C.startAccelerometer(C.int32_t(delay)); ecode == C.ENOSENSOR {
-		return errors.New("sensors: no accelerometer sensor on the device")
+type sensor struct {
+	kind     int
+	looperId int
+	queue    *C.ASensorEventQueue
+}
+
+func startAccelerometer(delay int64) (interface{}, error) {
+	return startSensor(C.ASENSOR_TYPE_ACCELEROMETER, delay)
+}
+
+func closeAccelerometer(s interface{}) error {
+	return closeSensor(s.(*sensor))
+}
+
+func readAccelerometer(s interface{}, events [][]float64) (n int, err error) {
+	return readSensor(s.(*sensor), events)
+}
+
+func startSensor(typ int, delay int64) (*sensor, error) {
+	id := nextLooperID
+	q := C.android_startSensorQueue(C.int(id), C.int(typ), C.int32_t(delay))
+	if q == nil {
+		return nil, errors.New("sensors: cannot find the default sensor on the device")
 	}
-	return nil
+	return &sensor{kind: typ, looperId: id, queue: q}, nil
 }
 
-func pollAccelerometer(n int) []AccelerometerEvent {
-	r := make([]AccelerometerEvent, n)
-
-	var ptr *C.AccelerometerEvent
-	ptr = C.pollAccelerometer(C.int(n))
-
-	start := unsafe.Pointer(ptr)
-	var item C.AccelerometerEvent
-
-	for i := 0; i < n; i++ {
-		current := (*C.AccelerometerEvent)(unsafe.Pointer(uintptr(start) + uintptr(i)*unsafe.Sizeof(item)))
+func readSensor(s *sensor, events [][]float64) (n int, err error) {
+	num := len(events)
+	ptr := C.android_readSensorQueue(C.int(s.looperId), s.queue, C.int(num))
+	var item C.SensorEvent
+	for i := 0; i < num; i++ {
+		n = i
+		current := (*C.SensorEvent)(unsafe.Pointer(uintptr(unsafe.Pointer(ptr)) + uintptr(i)*unsafe.Sizeof(item)))
 		if current == nil {
 			break
 		}
-		r[i] = AccelerometerEvent{
-			DeltaX:    float64(current.x),
-			DeltaY:    float64(current.y),
-			DeltaZ:    float64(current.z),
-			Timestamp: int64(current.timestamp),
+		events[i] = []float64{
+			float64(current.vals[0]),
+			float64(current.vals[1]),
+			float64(current.vals[2]),
 		}
 	}
-
-	C.free(start)
-	return r
+	C.free(unsafe.Pointer(ptr))
+	return
 }
 
-func stopAccelerometer() error {
-	C.destroyAccelerometer()
+func closeSensor(s *sensor) error {
+	C.android_destroySensorQueue(s.queue)
 	return nil
 }

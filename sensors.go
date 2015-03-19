@@ -48,24 +48,3 @@ func (a *Accelerometer) Read(e [][]float64) (n int, err error) {
 func (a *Accelerometer) Close() error {
 	return closeAccelerometer(a.s)
 }
-
-// Type of the network that is currently in use.
-const (
-	TypeWiFi = iota
-	TypeMobile
-	TypeOther
-)
-
-// Connectivity status.
-const (
-	StatusUnknown = iota
-	StatusConnecting
-	StatusConnected
-	StatusDisconnecting
-)
-
-// Connectivity returns the type and the status of the network that is
-// currently in use.
-func Connectivity() (networkType int, status int) {
-	panic("not yet implemented")
-}

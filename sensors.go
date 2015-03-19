@@ -7,6 +7,7 @@ package sensors
 
 import "time"
 
+// Accelerometer represents an accelerometer sensor.
 type Accelerometer struct {
 	s interface{}
 }
@@ -25,8 +26,13 @@ func StartAccelerometer(delay time.Duration) (*Accelerometer, error) {
 }
 
 // Read reads new events from the accelerometer event queue.
-// It will block until len(events) number of events are available to
-// the sensor event queue.
+// It will block until len(e) events are retrieved.
+// e is a series of 3-vectors. Each vector contains the acceleration
+// force in m/s2 that is applied to the device in x, y and z axes.
+//
+// 	e[i][0]: acceleration force in x-axis
+// 	e[i][1]: acceleration force in y-axis
+// 	e[i][2]: acceleration force in z-axis
 //
 // A call to StartAccelerometer is mandatory to start the accelerometer
 // sensor and initialize its event queue.
@@ -34,8 +40,8 @@ func StartAccelerometer(delay time.Duration) (*Accelerometer, error) {
 // You have to call this function from the same OS thread that the
 // accelerometer has been started. Use runtime.LockOSThread to lock the
 // current goroutine to a particular OS thread.
-func (a *Accelerometer) Read(events [][]float64) (n int, err error) {
-	return readAccelerometer(a.s, events)
+func (a *Accelerometer) Read(e [][]float64) (n int, err error) {
+	return readAccelerometer(a.s, e)
 }
 
 // Close stops the accelerometer and frees the related resources.

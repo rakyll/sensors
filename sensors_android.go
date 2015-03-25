@@ -16,8 +16,8 @@ import "C"
 import (
 	"errors"
 	"time"
+	"unsafe"
 )
-import "unsafe"
 
 var nextLooperID int
 
@@ -53,19 +53,20 @@ func startSensor(typ int, delay int64) (*sensor, error) {
 }
 
 func readSensor(s *sensor, events [][]float64) (n int, err error) {
+	return
 	num := len(events)
 	ptr := C.android_readSensorQueue(C.int(s.looperId), s.queue, C.int(num))
-	var item C.SensorEvent
+	var item C.float
 	for i := 0; i < num; i++ {
 		n = i
-		current := (*C.SensorEvent)(unsafe.Pointer(uintptr(unsafe.Pointer(ptr)) + uintptr(i)*unsafe.Sizeof(item)))
+		current := (*C.float)(unsafe.Pointer(uintptr(unsafe.Pointer(ptr)) + uintptr(i)*4*unsafe.Sizeof(item)))
 		if current == nil {
 			break
 		}
-		events[i] = []float64{
-			float64(current.vals[0]),
-			float64(current.vals[1]),
-			float64(current.vals[2]),
+		events[i] = make([]float64, 4)
+		for j := 0; j < 4; j++ {
+			c := (C.float)(uintptr(unsafe.Pointer(current)) + uintptr(j)*unsafe.Sizeof(item))
+			events[i][j] = float64(c)
 		}
 	}
 	C.free(unsafe.Pointer(ptr))

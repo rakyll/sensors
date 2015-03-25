@@ -7,44 +7,32 @@ package sensors
 
 import "time"
 
-// Accelerometer represents an accelerometer sensor.
-type Accelerometer struct {
-	s interface{} // platform-specific implementation of the underlying sensor
+type Type int
+
+var (
+	Accelerometer = Type(1)
+	Gyroscope     = Type(2)
+	Magnometer    = Type(3)
+	Altimeter     = Type(4)
+)
+
+type Manager struct {
+	m interface{} // platform-specific implementation of the underlying manager
 }
 
-// StartAccelerometer starts a new accelerometer.
-// Once the accelerometer is no longer in use, it should be stopped
-// and its resources should be released by calling Close.
-// Delay determines the wait-time to read the next sample from the sensor.
-// Its lower limit is bound by the sensor's output bandwidth.
-func StartAccelerometer(delay time.Duration) (*Accelerometer, error) {
-	s, err := startAccelerometer(delay)
-	if err != nil {
-		return nil, err
-	}
-	return &Accelerometer{s: s}, nil
+func (m *Manager) Enable(t Type, delay time.Duration) error {
+	panic("not yet implemented")
 }
 
-// Read reads new events from the accelerometer event queue.
-// It will block until len(e) events are retrieved.
-// e is a series of 3-vectors. Each vector contains the acceleration
-// force in m/s2 that is applied to the device in x-, y- and z-axes.
-//
-// 	e[i][0]: acceleration force in x-axis
-// 	e[i][1]: acceleration force in y-axis
-// 	e[i][2]: acceleration force in z-axis
-//
-// A call to StartAccelerometer is mandatory to start the accelerometer
-// sensor and initialize its event queue.
-//
-// You have to call this function from the same OS thread that the
-// accelerometer has been started. Use runtime.LockOSThread to lock the
-// current goroutine to a particular OS thread.
-func (a *Accelerometer) Read(e [][]float64) (n int, err error) {
-	return readAccelerometer(a.s, e)
+func (m *Manager) Disable(t Type) error {
+	panic("not yet implemented")
 }
 
-// Close stops the accelerometer and frees the related resources.
-func (a *Accelerometer) Close() error {
-	return closeAccelerometer(a.s)
+func (a *Manager) Read(e [][]float64) (n int, err error) {
+	panic("not yet implemented")
+}
+
+// Close stops the manager and frees the related resources.
+func (m *Manager) Close() error {
+	panic("not yet implemented")
 }

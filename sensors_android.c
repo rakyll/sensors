@@ -45,20 +45,21 @@ void android_destroySensorQueue(ASensorEventQueue* q) {
   ASensorManager_destroyEventQueue(manager, q);
 }
 
-SensorEvent* android_readSensorQueue(int looperId, ASensorEventQueue* q, int n) {
+float** android_readSensorQueue(int looperId, ASensorEventQueue* q, int n) {
   int id;
   int events;
   ASensorEvent event;
   // TODO(jbd): Timeout if pollAll blocks longer than it should.
-  SensorEvent* dest = (SensorEvent*)malloc(sizeof(struct SensorEvent) * n);
-  int i;
+  float** dest = (float**)malloc(sizeof(float) * 4 * n);
+  int i = 0;
   while (i < n && (id = ALooper_pollAll(-1, NULL, &events, NULL)) >= 0) {
      if (id == looperId) {
       ASensorEvent event;
       if(ASensorEventQueue_getEvents(q, &event, 1)) {
-        dest[i].vals[0] = event.acceleration.x;
-        dest[i].vals[1] = event.acceleration.y;
-        dest[i].vals[2] = event.acceleration.z;
+        dest[i][0] = 0;
+        dest[i][1] = event.acceleration.x;
+        dest[i][2] = event.acceleration.y;
+        dest[i][3] = event.acceleration.z;
       }
       i++;
     }

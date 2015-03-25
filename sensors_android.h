@@ -13,7 +13,7 @@ typedef struct SensorEvent {
 
 void android_initSensors();
 ASensorEventQueue* android_startSensorQueue(int looperId, int type, int32_t usec);
-SensorEvent* android_readSensorQueue(int looperId, ASensorEventQueue* q, int n);
+float** android_readSensorQueue(int looperId, ASensorEventQueue* q, int n);
 void android_destroySensorQueue(ASensorEventQueue* q);
 
 #endif

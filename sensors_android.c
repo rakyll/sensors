@@ -61,6 +61,7 @@ float** android_readQueue(ASensorEventQueue* q, int n) {
       dest[i][2] = event.acceleration.y;
       dest[i][3] = event.acceleration.z;
     }
+    // TODO(jbd): Handle other movement events.
     i++;
   }
   return dest;

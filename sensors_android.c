@@ -24,28 +24,28 @@ void android_initSensors() {
   manager = ASensorManager_getInstance();
 }
 
-ASensorEventQueue* android_startSensorQueue(int looperId, int type, int32_t usec) {
+ASensorEventQueue* android_createQueue() {
   if (looper == NULL) {
     looper = ALooper_forThread();
   }
   if (looper == NULL) {
     looper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
   }
-  const ASensor* sensor = ASensorManager_getDefaultSensor(manager, type);
-  if (sensor == NULL) {
-    return NULL;
-  }
-  ASensorEventQueue* q = ASensorManager_createEventQueue(manager, looper, looperId, NULL, NULL);
-  ASensorEventQueue_enableSensor(q, sensor);
-  ASensorEventQueue_setEventRate(q, sensor, usec);
-  return q;
- }
-
-void android_destroySensorQueue(ASensorEventQueue* q) {
-  ASensorManager_destroyEventQueue(manager, q);
+  return ASensorManager_createEventQueue(manager, looper, 0, NULL, NULL);
 }
 
-float** android_readSensorQueue(int looperId, ASensorEventQueue* q, int n) {
+void android_enableSensor(ASensorEventQueue* q, int s, int32_t usec) {
+  const ASensor* sensor = ASensorManager_getDefaultSensor(manager, s);
+  ASensorEventQueue_enableSensor(q, sensor);
+  ASensorEventQueue_setEventRate(q, sensor, usec);
+}
+
+void android_disableSensor(ASensorEventQueue* q, int s) {
+  const ASensor* sensor = ASensorManager_getDefaultSensor(manager, s);
+  ASensorEventQueue_disableSensor(q, sensor);
+}
+
+float** android_readQueue(ASensorEventQueue* q, int n) {
   int id;
   int events;
   ASensorEvent event;
@@ -53,16 +53,14 @@ float** android_readSensorQueue(int looperId, ASensorEventQueue* q, int n) {
   float** dest = (float**)malloc(sizeof(float) * 4 * n);
   int i = 0;
   while (i < n && (id = ALooper_pollAll(-1, NULL, &events, NULL)) >= 0) {
-     if (id == looperId) {
-      ASensorEvent event;
-      if(ASensorEventQueue_getEvents(q, &event, 1)) {
-        dest[i][0] = 0;
-        dest[i][1] = event.acceleration.x;
-        dest[i][2] = event.acceleration.y;
-        dest[i][3] = event.acceleration.z;
-      }
-      i++;
+    ASensorEvent event;
+    if(ASensorEventQueue_getEvents(q, &event, 1)) {
+      dest[i][0] = event.timestamp;
+      dest[i][1] = event.acceleration.x;
+      dest[i][2] = event.acceleration.y;
+      dest[i][3] = event.acceleration.z;
     }
+    i++;
   }
   return dest;
 }

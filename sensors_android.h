@@ -5,15 +5,11 @@
 #ifndef SENSORS_ANDROID_H
 #define SENSORS_ANDROID_H
 
-// Wrapping ASensorEvent, because cgo doesn't support unions.
-typedef struct SensorEvent {
-  int64_t timestamp;
-  float vals[3];
-} SensorEvent;
-
 void android_initSensors();
-ASensorEventQueue* android_startSensorQueue(int looperId, int type, int32_t usec);
-float** android_readSensorQueue(int looperId, ASensorEventQueue* q, int n);
-void android_destroySensorQueue(ASensorEventQueue* q);
+ASensorEventQueue* android_createQueue();
+void android_enableSensor(ASensorEventQueue*, int, int32_t);
+void android_disableSensor(ASensorEventQueue*, int);
+float** android_readQueue(ASensorEventQueue*, int);
+void android_destroyQueue(ASensorEventQueue*);
 
 #endif

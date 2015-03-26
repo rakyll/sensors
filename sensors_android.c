@@ -50,11 +50,12 @@ float** android_readQueue(ASensorEventQueue* q, int n) {
   int events;
   ASensorEvent event;
   // TODO(jbd): Timeout if pollAll blocks longer than it should.
-  float** dest = (float**)malloc(sizeof(float) * 4 * n);
+  float** dest = (float**)malloc(sizeof(float*) * n);
   int i = 0;
   while (i < n && (id = ALooper_pollAll(-1, NULL, &events, NULL)) >= 0) {
     ASensorEvent event;
     if(ASensorEventQueue_getEvents(q, &event, 1)) {
+      dest[i] = (float*)malloc(sizeof(float) * 4);
       dest[i][0] = event.timestamp;
       dest[i][1] = event.acceleration.x;
       dest[i][2] = event.acceleration.y;
@@ -63,4 +64,8 @@ float** android_readQueue(ASensorEventQueue* q, int n) {
     i++;
   }
   return dest;
+}
+
+void android_destroyQueue(ASensorEventQueue* q){
+
 }

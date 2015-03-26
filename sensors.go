@@ -7,6 +7,7 @@ package sensors
 
 import (
 	"errors"
+	"sync"
 	"time"
 )
 
@@ -20,10 +21,16 @@ var (
 )
 
 type Manager struct {
-	m *manager // platform-specific implementation of the underlying manager
+	once sync.Once
+	m    *manager // platform-specific implementation of the underlying manager
+}
+
+func (m *Manager) init() {
+	m.m = &manager{}
 }
 
 func (m *Manager) Enable(t Type, delay time.Duration) error {
+	m.once.Do(m.init)
 	if t < 1 || t > 4 {
 		return errors.New("sensors: unknown sensor type")
 	}
@@ -31,6 +38,7 @@ func (m *Manager) Enable(t Type, delay time.Duration) error {
 }
 
 func (m *Manager) Disable(t Type) error {
+	m.once.Do(m.init)
 	if t < 1 || t > 4 {
 		return errors.New("sensors: unknown sensor type")
 	}
@@ -38,10 +46,12 @@ func (m *Manager) Disable(t Type) error {
 }
 
 func (m *Manager) Read(e [][]float64) (n int, err error) {
+	m.once.Do(m.init)
 	return read(m.m, e)
 }
 
 // Close stops the manager and frees the related resources.
 func (m *Manager) Close() error {
+	m.once.Do(m.init)
 	return close(m.m)
 }

@@ -78,6 +78,6 @@ func read(m *manager, e [][]float64) (n int, err error) {
 }
 
 func close(m *manager) error {
-	C.android_destroyQueue(m.q)
+	C.android_destroyQueue(m.queue)
 	return nil
 }

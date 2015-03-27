@@ -14,8 +14,6 @@
 
 #define LOOPER_ID_ACCELEROMETER 1
 
-int stopping = 0; // poll event queues until stopping is set.
-
 ASensorManager* manager = NULL;
 
 ALooper* looper = NULL;
@@ -45,28 +43,28 @@ void android_disableSensor(ASensorEventQueue* q, int s) {
   ASensorEventQueue_disableSensor(q, sensor);
 }
 
-float** android_readQueue(ASensorEventQueue* q, int n) {
+float* android_readQueue(ASensorEventQueue* q, int n) {
   int id;
   int events;
   ASensorEvent event;
   // TODO(jbd): Timeout if pollAll blocks longer than it should.
-  float** dest = (float**)malloc(sizeof(float*) * n);
+  float* dest = (float*)malloc(4 * n * sizeof(float));
   int i = 0;
   while (i < n && (id = ALooper_pollAll(-1, NULL, &events, NULL)) >= 0) {
     ASensorEvent event;
     if(ASensorEventQueue_getEvents(q, &event, 1)) {
-      dest[i] = (float*)malloc(sizeof(float) * 4);
-      dest[i][0] = event.timestamp;
-      dest[i][1] = event.acceleration.x;
-      dest[i][2] = event.acceleration.y;
-      dest[i][3] = event.acceleration.z;
+      // TODO(jbd): Handle event type.
+      dest[i] = event.timestamp;
+      dest[i+1] = event.acceleration.x;
+      dest[i+2] = event.acceleration.y;
+      dest[i+3] = event.acceleration.z;
+      LOG_INFO("%f %f %f", dest[i+1],dest[i+2],dest[i+3]);
+      i++;
     }
-    // TODO(jbd): Handle other movement events.
-    i++;
   }
   return dest;
 }
 
 void android_destroyQueue(ASensorEventQueue* q){
-
+  ASensorManager_destroyEventQueue(manager, q);
 }

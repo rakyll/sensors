@@ -40,6 +40,33 @@ func enable(m *manager, t Type, delay time.Duration) error {
 	return nil
 }
 
+func disable(m *manager, t Type) error {
+	C.android_disableSensor(m.queue, intToSensorType(t))
+	return nil
+}
+
+func read(m *manager, e [][]float64) (n int, err error) {
+	var item C.float
+
+	num := len(e)
+	ptr := C.android_readQueue(m.queue, C.int(num))
+
+	for i := 0; i < num; i++ {
+		for j := 0; j < 4; j++ {
+			c := (*C.float)(unsafe.Pointer(uintptr(unsafe.Pointer(ptr)) + uintptr(i)*uintptr(j)*unsafe.Sizeof(item)))
+			e[i][j] = float64(*c)
+		}
+		n = i
+	}
+	C.free(unsafe.Pointer(ptr))
+	return
+}
+
+func close(m *manager) error {
+	C.android_destroyQueue(m.queue)
+	return nil
+}
+
 func intToSensorType(t Type) C.int {
 	switch t {
 	case Accelerometer:
@@ -50,34 +77,4 @@ func intToSensorType(t Type) C.int {
 		return C.ASENSOR_TYPE_MAGNETIC_FIELD
 	}
 	return C.int(0)
-}
-
-func disable(m *manager, t Type) error {
-	C.android_disableSensor(m.queue, intToSensorType(t))
-	return nil
-}
-
-func read(m *manager, e [][]float64) (n int, err error) {
-	num := len(e)
-	ptr := C.android_readQueue(m.queue, C.int(num))
-	var item C.float
-	for i := 0; i < num; i++ {
-		n = i
-		current := (*C.float)(unsafe.Pointer(uintptr(unsafe.Pointer(ptr)) + uintptr(i)*4*unsafe.Sizeof(item)))
-		if current == nil {
-			break
-		}
-		e[i] = make([]float64, 4)
-		for j := 0; j < 4; j++ {
-			c := (C.float)(uintptr(unsafe.Pointer(current)) + uintptr(j)*unsafe.Sizeof(item))
-			e[i][j] = float64(c)
-		}
-	}
-	C.free(unsafe.Pointer(ptr))
-	return
-}
-
-func close(m *manager) error {
-	C.android_destroyQueue(m.queue)
-	return nil
 }

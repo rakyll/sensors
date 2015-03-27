@@ -50,6 +50,7 @@ int android_readQueue(ASensorEventQueue* q, int n, float* dest) {
   ASensorEvent event;
   // TODO(jbd): Timeout if pollAll blocks longer than it should.
   int i = 0;
+  // Block forever until new events are on the queue.
   while (i < 5*n && (id = ALooper_pollAll(-1, NULL, &events, NULL)) >= 0) {
     if (id == LOOPER_ID_ACCELEROMETER) {
       ASensorEvent event;

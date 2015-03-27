@@ -11,8 +11,7 @@ import (
 	"time"
 )
 
-// Type represents a sensor type. Valid sensor types supported by
-// this package are Accelerometer, Gyroscope, Magnetometer and Altimeter.
+// Type represents a sensor type.
 type Type int
 
 var (
@@ -66,6 +65,8 @@ func (m *Manager) init() {
 // If there are multiple sensors of type t on the device, Enable uses
 // the default one.
 // If there is no default sensor of type t on the device, an error returned.
+// Valid sensor types supported by this package are Accelerometer,
+// Gyroscope, Magnetometer and Altimeter.
 func (m *Manager) Enable(t Type, delay time.Duration) error {
 	m.once.Do(m.init)
 	if t < 1 || t > 4 {

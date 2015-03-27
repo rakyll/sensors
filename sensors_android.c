@@ -16,6 +16,7 @@
 
 ASensorManager* manager = NULL;
 
+// TODO(jbd): looper per each Manager.
 ALooper* looper = NULL;
 
 void android_initSensors() {

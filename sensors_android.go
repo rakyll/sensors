@@ -46,19 +46,14 @@ func disable(m *manager, t Type) error {
 }
 
 func read(m *manager, e [][]float64) (n int, err error) {
-	var item C.float
-
 	num := len(e)
-	ptr := C.android_readQueue(m.queue, C.int(num))
-
-	for i := 0; i < num; i++ {
-		for j := 0; j < 4; j++ {
-			c := (*C.float)(unsafe.Pointer(uintptr(unsafe.Pointer(ptr)) + uintptr(i)*uintptr(j)*unsafe.Sizeof(item)))
-			e[i][j] = float64(*c)
+	dst := make([]float32, 5*num)
+	n = int(C.android_readQueue(m.queue, C.int(num), (*C.float)(unsafe.Pointer(&dst[0]))))
+	for i := 0; i < n/5; i++ {
+		for j := 0; j < 5; j++ {
+			e[i][j] = float64(dst[i*5+j])
 		}
-		n = i
 	}
-	C.free(unsafe.Pointer(ptr))
 	return
 }
 

@@ -9,7 +9,7 @@ void android_initSensors();
 ASensorEventQueue* android_createQueue();
 void android_enableSensor(ASensorEventQueue*, int, int32_t);
 void android_disableSensor(ASensorEventQueue*, int);
-float* android_readQueue(ASensorEventQueue*, int);
+int android_readQueue(ASensorEventQueue*, int, float*);
 void android_destroyQueue(ASensorEventQueue*);
 
 #endif

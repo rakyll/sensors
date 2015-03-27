@@ -29,7 +29,7 @@ ASensorEventQueue* android_createQueue() {
   if (looper == NULL) {
     looper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
   }
-  return ASensorManager_createEventQueue(manager, looper, 0, NULL, NULL);
+  return ASensorManager_createEventQueue(manager, looper, LOOPER_ID_ACCELEROMETER, NULL, NULL);
 }
 
 void android_enableSensor(ASensorEventQueue* q, int s, int32_t usec) {
@@ -43,26 +43,27 @@ void android_disableSensor(ASensorEventQueue* q, int s) {
   ASensorEventQueue_disableSensor(q, sensor);
 }
 
-float* android_readQueue(ASensorEventQueue* q, int n) {
+int android_readQueue(ASensorEventQueue* q, int n, float* dest) {
   int id;
   int events;
   ASensorEvent event;
   // TODO(jbd): Timeout if pollAll blocks longer than it should.
-  float* dest = (float*)malloc(4 * n * sizeof(float));
   int i = 0;
   while (i < n && (id = ALooper_pollAll(-1, NULL, &events, NULL)) >= 0) {
-    ASensorEvent event;
-    if(ASensorEventQueue_getEvents(q, &event, 1)) {
-      // TODO(jbd): Handle event type.
-      dest[i] = event.timestamp;
-      dest[i+1] = event.acceleration.x;
-      dest[i+2] = event.acceleration.y;
-      dest[i+3] = event.acceleration.z;
-      LOG_INFO("%f %f %f", dest[i+1],dest[i+2],dest[i+3]);
-      i++;
+    if (id == LOOPER_ID_ACCELEROMETER) {
+      ASensorEvent event;
+      if(ASensorEventQueue_getEvents(q, &event, 1)) {
+        // TODO(jbd): Handle event type.
+        dest[i] = (float)event.type;
+        dest[i+1] = (float)event.timestamp;
+        dest[i+2] = event.acceleration.x;
+        dest[i+3] = event.acceleration.y;
+        dest[i+4] = event.acceleration.z;
+        i += 5;
+      }
     }
   }
-  return dest;
+  return i;
 }
 
 void android_destroyQueue(ASensorEventQueue* q){

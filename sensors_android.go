@@ -78,7 +78,7 @@ func typeToInt(t Type) C.int {
 		return C.ASENSOR_TYPE_ACCELEROMETER
 	case Gyroscope:
 		return C.ASENSOR_TYPE_GYROSCOPE
-	case Magnometer:
+	case Magnetometer:
 		return C.ASENSOR_TYPE_MAGNETIC_FIELD
 	default:
 		return C.int(0)
@@ -92,7 +92,7 @@ func intToType(t float32) Type {
 	case C.ASENSOR_TYPE_GYROSCOPE:
 		return Gyroscope
 	case C.ASENSOR_TYPE_MAGNETIC_FIELD:
-		return Magnometer
+		return Magnetometer
 	default:
 		return Type(0)
 	}

@@ -16,7 +16,7 @@ type Type int
 var (
 	Accelerometer = Type(1)
 	Gyroscope     = Type(2)
-	Magnometer    = Type(3)
+	Magnetometer  = Type(3)
 	Altimeter     = Type(4)
 )
 

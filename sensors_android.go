@@ -46,7 +46,7 @@ func disable(m *manager, t Type) error {
 }
 
 func read(m *manager, e []Event) (n int, err error) {
-	const size = 5
+	const size = 5 // number of floats to use per event
 
 	num := len(e)
 	dst := make([]float32, size*num)

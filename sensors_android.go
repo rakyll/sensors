@@ -51,6 +51,7 @@ func read(m *manager, e []Event) (n int, err error) {
 	num := len(e)
 	dst := make([]float32, size*num)
 
+	// TODO(jbd): add timeout.
 	n = int(C.android_readQueue(m.queue, C.int(num), (*C.float)(unsafe.Pointer(&dst[0]))))
 	for i := 0; i < n/size; i++ {
 		ev := Event{}

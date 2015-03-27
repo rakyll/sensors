@@ -54,7 +54,6 @@ int android_readQueue(ASensorEventQueue* q, int n, float* dest) {
     if (id == LOOPER_ID_ACCELEROMETER) {
       ASensorEvent event;
       if(ASensorEventQueue_getEvents(q, &event, 1)) {
-        // TODO(jbd): Handle event type.
         dest[i] = (float)event.type;
         dest[i+1] = (float)event.timestamp;
         dest[i+2] = event.vector.x;

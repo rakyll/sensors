@@ -57,9 +57,9 @@ int android_readQueue(ASensorEventQueue* q, int n, float* dest) {
         // TODO(jbd): Handle event type.
         dest[i] = (float)event.type;
         dest[i+1] = (float)event.timestamp;
-        dest[i+2] = event.acceleration.x;
-        dest[i+3] = event.acceleration.y;
-        dest[i+4] = event.acceleration.z;
+        dest[i+2] = event.vector.x;
+        dest[i+3] = event.vector.y;
+        dest[i+4] = event.vector.z;
         i += 5;
       }
     }

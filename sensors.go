@@ -20,6 +20,12 @@ var (
 	Altimeter     = Type(4)
 )
 
+type Event struct {
+	Type      Type
+	Timestamp int64
+	Data      []float64
+}
+
 type Manager struct {
 	once sync.Once
 	m    *manager // platform-specific implementation of the underlying manager
@@ -45,7 +51,7 @@ func (m *Manager) Disable(t Type) error {
 	return disable(m.m, t)
 }
 
-func (m *Manager) Read(e [][]float64) (n int, err error) {
+func (m *Manager) Read(e []Event) (n int, err error) {
 	m.once.Do(m.init)
 	return read(m.m, e)
 }

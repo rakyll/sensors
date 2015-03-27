@@ -36,23 +36,33 @@ func enable(m *manager, t Type, delay time.Duration) error {
 		m.queue = q
 	}
 	d := delay.Nanoseconds() * 1000
-	C.android_enableSensor(m.queue, intToSensorType(t), C.int32_t(d))
+	C.android_enableSensor(m.queue, typeToInt(t), C.int32_t(d))
 	return nil
 }
 
 func disable(m *manager, t Type) error {
-	C.android_disableSensor(m.queue, intToSensorType(t))
+	C.android_disableSensor(m.queue, typeToInt(t))
 	return nil
 }
 
-func read(m *manager, e [][]float64) (n int, err error) {
+func read(m *manager, e []Event) (n int, err error) {
+	const size = 5
+
 	num := len(e)
-	dst := make([]float32, 5*num)
+	dst := make([]float32, size*num)
+
 	n = int(C.android_readQueue(m.queue, C.int(num), (*C.float)(unsafe.Pointer(&dst[0]))))
-	for i := 0; i < n/5; i++ {
-		for j := 0; j < 5; j++ {
-			e[i][j] = float64(dst[i*5+j])
+	for i := 0; i < n/size; i++ {
+		ev := Event{}
+		// [<type>, <timestamp>, <data>, <data>, <data>]
+		ev.Type = intToType(dst[i*size])
+		ev.Timestamp = int64(dst[i*size+1])
+		ev.Data = []float64{
+			float64(dst[i*size+2]),
+			float64(dst[i*size+3]),
+			float64(dst[i*size+4]),
 		}
+		e[i] = ev
 	}
 	return
 }
@@ -62,7 +72,7 @@ func close(m *manager) error {
 	return nil
 }
 
-func intToSensorType(t Type) C.int {
+func typeToInt(t Type) C.int {
 	switch t {
 	case Accelerometer:
 		return C.ASENSOR_TYPE_ACCELEROMETER
@@ -70,6 +80,20 @@ func intToSensorType(t Type) C.int {
 		return C.ASENSOR_TYPE_GYROSCOPE
 	case Magnometer:
 		return C.ASENSOR_TYPE_MAGNETIC_FIELD
+	default:
+		return C.int(0)
 	}
-	return C.int(0)
+}
+
+func intToType(t float32) Type {
+	switch t {
+	case C.ASENSOR_TYPE_ACCELEROMETER:
+		return Accelerometer
+	case C.ASENSOR_TYPE_GYROSCOPE:
+		return Gyroscope
+	case C.ASENSOR_TYPE_MAGNETIC_FIELD:
+		return Magnometer
+	default:
+		return Type(0)
+	}
 }

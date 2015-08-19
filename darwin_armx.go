@@ -29,6 +29,7 @@ func (m *manager) initialize() {
 }
 
 func (m *manager) enable(t Type, delay time.Duration) error {
+	// TODO(jbd): set the interval.
 	switch t {
 	case Accelerometer:
 		C.GoIOS_startAccelerometer(m.m)

@@ -85,12 +85,11 @@ func Events() <-chan interface{} {
 	e := make([]Event, 4)
 
 	go func() {
-		// TODO(jbd): Stop reading if the channel is closed.
-		// TODO(jbd): Drain channel if it's growing.
+		// TODO(jbd): Stop the poller if no event types are enabled.
 		for {
 			n, err := m.read(e)
 			if err != nil {
-				panic(err)
+				continue
 			}
 			for i := 0; i < n; i++ {
 				ch <- e[i]

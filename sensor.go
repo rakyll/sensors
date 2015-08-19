@@ -81,7 +81,24 @@ func Disable(t Type) error {
 }
 
 func Events() <-chan interface{} {
-	panic("not yet implemented")
+	ch := make(chan interface{})
+	e := make([]Event, 4)
+
+	go func() {
+		// TODO(jbd): Stop reading if the channel is closed.
+		// TODO(jbd): Drain channel if it's growing.
+		for {
+			n, err := m.read(e)
+			if err != nil {
+				panic(err)
+			}
+			for i := 0; i < n; i++ {
+				ch <- e[i]
+			}
+		}
+	}()
+
+	return ch
 }
 
 func init() {

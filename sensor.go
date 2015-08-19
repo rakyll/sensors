@@ -2,23 +2,35 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package sensors provides sensor events from various movement sensors.
-package sensors
+// Package sensor provides sensor events from various movement sensors.
+package sensor // import "golang.org/x/mobile/exp/sensor"
 
 import (
 	"errors"
-	"sync"
 	"time"
 )
 
 // Type represents a sensor type.
 type Type int
 
-var (
-	Accelerometer = Type(1)
-	Gyroscope     = Type(2)
-	Magnetometer  = Type(3)
-	Altimeter     = Type(4)
+var sensorNames = map[Type]string{
+	Accelerometer: "Accelerometer",
+	Gyroscope:     "Gyrsocope",
+	Magnetometer:  "Magnetometer",
+}
+
+// String returns the string representation of the sensor type.
+func (t Type) String() string {
+	if n, ok := sensorNames[t]; ok {
+		return n
+	}
+	return "Unknown sensor"
+}
+
+const (
+	Accelerometer = Type(0)
+	Gyroscope     = Type(1)
+	Magnetometer  = Type(2)
 )
 
 // Event represents a sensor event.
@@ -26,9 +38,9 @@ type Event struct {
 	// Sensor is the type of the sensor the event is coming from.
 	Sensor Type
 
-	// Timestamp is the time the event happened.
+	// Timestamp is a device specific event time in nanoseconds.
 	// Timestamps are not Unix times, they represent a time that is
-	// only valid for the device's default accelerometer sensor.
+	// only valid for the device's default sensor.
 	Timestamp int64
 
 	// Data is the event data.
@@ -53,12 +65,7 @@ type Event struct {
 
 // Manager multiplexes sensor event data from various sensor sources.
 type Manager struct {
-	once sync.Once
-	m    *manager // platform-specific implementation of the underlying manager
-}
-
-func (m *Manager) init() {
-	m.m = &manager{}
+	m *manager // platform-specific implementation of the underlying manager
 }
 
 // Enable enables a sensor with the specified delay rate.
@@ -68,32 +75,44 @@ func (m *Manager) init() {
 // Valid sensor types supported by this package are Accelerometer,
 // Gyroscope, Magnetometer and Altimeter.
 func (m *Manager) Enable(t Type, delay time.Duration) error {
-	m.once.Do(m.init)
-	if t < 1 || t > 4 {
-		return errors.New("sensors: unknown sensor type")
+	if m.m == nil {
+		m.m = new(manager)
+		m.m.initialize()
 	}
-	return enable(m.m, t, delay)
+	if t < 0 || int(t) >= len(sensorNames) {
+		return errors.New("sensor: unknown sensor type")
+	}
+	return m.m.enable(t, delay)
 }
 
 // Disable disables to feed the manager with the specified sensor.
 func (m *Manager) Disable(t Type) error {
-	m.once.Do(m.init)
-	if t < 1 || t > 4 {
-		return errors.New("sensors: unknown sensor type")
+	if m.m == nil {
+		m.m = new(manager)
+		m.m.initialize()
 	}
-	return disable(m.m, t)
+	if t < 0 || int(t) >= len(sensorNames) {
+		return errors.New("sensor: unknown sensor type")
+	}
+	return m.m.disable(t)
 }
 
 // Read reads a series of events from the manager.
 // It may read up to len(e) number of events, but will return
 // less events if timeout occurs.
 func (m *Manager) Read(e []Event) (n int, err error) {
-	m.once.Do(m.init)
-	return read(m.m, e)
+	if m.m == nil {
+		m.m = new(manager)
+		m.m.initialize()
+	}
+	return m.m.read(e)
 }
 
 // Close stops the manager and frees the related resources.
+// Once Close is called, Manager becomes invalid to use.
 func (m *Manager) Close() error {
-	m.once.Do(m.init)
-	return close(m.m)
+	if m.m == nil {
+		return nil
+	}
+	return m.m.close()
 }

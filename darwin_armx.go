@@ -14,7 +14,6 @@ package sensor
 */
 import "C"
 import (
-	"errors"
 	"fmt"
 	"time"
 	"unsafe"
@@ -54,7 +53,14 @@ func (m *manager) disable(t Type) error {
 }
 
 func (m *manager) read(e []Event) (n int, err error) {
-	return 0, errors.New("sensor: no sensor data available")
+	ev := make([]C.float, 4)
+	for i := 0; i < len(e); i++ {
+		C.GoIOS_readAccelerometer(m.m, (*C.float)(unsafe.Pointer(&ev[0])))
+		e[i].Sensor = Accelerometer
+		e[i].Timestamp = int64(ev[0])
+		e[i].Data = []float64{float64(ev[1]), float64(ev[2]), float64(ev[3])}
+	}
+	return len(e), nil
 }
 
 func (m *manager) close() error {

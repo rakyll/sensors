@@ -11,6 +11,16 @@ void* GoIOS_createManager() {
   return [[CMMotionManager alloc] init];
 }
 
-void GoIOS_destroyManager(void* manager) {
-  [((CMMotionManager*)manager) release];
+int GoIOS_startAccelerometer(void* m) {
+  [((CMMotionManager*)m) startAccelerometerUpdates];
+  return 0;
+}
+
+int GoIOS_stopAccelerometer(void* m) {
+  [((CMMotionManager*)m) stopAccelerometerUpdates];
+  return 0;
+}
+
+void GoIOS_destroyManager(void* m) {
+  [((CMMotionManager*)m) release];
 }

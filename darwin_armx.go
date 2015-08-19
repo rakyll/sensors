@@ -15,6 +15,7 @@ package sensor
 import "C"
 import (
 	"errors"
+	"fmt"
 	"time"
 	"unsafe"
 )
@@ -28,11 +29,27 @@ func (m *manager) initialize() {
 }
 
 func (m *manager) enable(t Type, delay time.Duration) error {
-	return errors.New("sensor: no sensors available")
+	switch t {
+	case Accelerometer:
+		C.GoIOS_startAccelerometer(m.m)
+	case Gyroscope:
+	case Magnetometer:
+	default:
+		return fmt.Errorf("sensor: unknown sensor type: %v", t)
+	}
+	return nil
 }
 
 func (m *manager) disable(t Type) error {
-	return errors.New("sensor: no sensors available")
+	switch t {
+	case Accelerometer:
+		C.GoIOS_stopAccelerometer(m.m)
+	case Gyroscope:
+	case Magnetometer:
+	default:
+		return fmt.Errorf("sensor: unknown sensor type: %v", t)
+	}
+	return nil
 }
 
 func (m *manager) read(e []Event) (n int, err error) {

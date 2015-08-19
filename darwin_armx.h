@@ -11,6 +11,10 @@
 #import <CoreMotion/CoreMotion.h>
 
 void* GoIOS_createManager();
+int GoIOS_startAccelerometer(void* m);
+int GoIOS_stopAccelerometer(void* m);
+int GoIOS_startMagnetometer(void* m);
+int GoIOS_stopMagnetometer(void* m);
 void GoIOS_destroyManager(void* m);
 
 #endif

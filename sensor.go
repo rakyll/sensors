@@ -82,21 +82,7 @@ func Disable(t Type) error {
 
 func Events() <-chan interface{} {
 	ch := make(chan interface{})
-	e := make([]Event, 4)
-
-	go func() {
-		// TODO(jbd): Stop the poller if no event types are enabled.
-		for {
-			n, err := m.read(e)
-			if err != nil {
-				continue
-			}
-			for i := 0; i < n; i++ {
-				ch <- e[i]
-			}
-		}
-	}()
-
+	m.rread(ch)
 	return ch
 }
 

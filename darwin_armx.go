@@ -19,6 +19,12 @@ import (
 	"unsafe"
 )
 
+var (
+	aDelay time.Duration
+	gDelay time.Duration
+	mDelay time.Duration
+)
+
 type manager struct {
 	m unsafe.Pointer
 }
@@ -32,6 +38,7 @@ func (m *manager) enable(t Type, delay time.Duration) error {
 	switch t {
 	case Accelerometer:
 		C.GoIOS_startAccelerometer(m.m)
+		aDelay = delay
 	case Gyroscope:
 	case Magnetometer:
 	default:
@@ -52,15 +59,27 @@ func (m *manager) disable(t Type) error {
 	return nil
 }
 
-func (m *manager) read(e []Event) (n int, err error) {
-	ev := make([]C.float, 4)
-	for i := 0; i < len(e); i++ {
-		C.GoIOS_readAccelerometer(m.m, (*C.float)(unsafe.Pointer(&ev[0])))
-		e[i].Sensor = Accelerometer
-		e[i].Timestamp = int64(ev[0])
-		e[i].Data = []float64{float64(ev[1]), float64(ev[2]), float64(ev[3])}
-	}
-	return len(e), nil
+func (m *manager) rread(ch chan interface{}) {
+	// TODO(jbd): Disable polling when sensor is disabled.
+	go func() {
+		ev := make([]C.float, 4)
+		var lastTimestamp int64
+		for {
+			C.GoIOS_readAccelerometer(m.m, (*C.float)(unsafe.Pointer(&ev[0])))
+			t := int64(ev[0] * 1000 * 1000)
+			if t > lastTimestamp {
+				ch <- Event{
+					Sensor:    Accelerometer,
+					Timestamp: t,
+					Data:      []float64{float64(ev[1]), float64(ev[2]), float64(ev[3])},
+				}
+				lastTimestamp = t
+				<-time.Tick(aDelay)
+			} else {
+				<-time.Tick(aDelay / 2)
+			}
+		}
+	}()
 }
 
 func (m *manager) close() error {

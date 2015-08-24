@@ -23,10 +23,10 @@ int GoIOS_stopAccelerometer(void* m) {
 
 void GoIOS_readAccelerometer(void* m, float* v) {
   CMAccelerometerData* data = ((CMMotionManager*)m).accelerometerData;
-  // v[0] = float(data.timestamp)
-  // v[1] = data.acceleration.x
-  // v[2] = data.acceleration.y
-  // v[3] = data.acceleration.z
+  v[0] = (float)data.timestamp;
+  v[1] = data.acceleration.x;
+  v[2] = data.acceleration.y;
+  v[3] = data.acceleration.z;
 }
 
 void GoIOS_destroyManager(void* m) {

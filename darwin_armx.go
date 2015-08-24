@@ -59,7 +59,7 @@ func (m *manager) disable(t Type) error {
 	return nil
 }
 
-func (m *manager) rread(ch chan interface{}) {
+func (m *manager) read(ch chan interface{}) {
 	// TODO(jbd): Disable polling when sensor is disabled.
 	go func() {
 		ev := make([]C.float, 4)

@@ -135,14 +135,24 @@ func (m *manager) disable(t Type) error {
 	return nil
 }
 
-func (m *manager) read(e []Event) (n int, err error) {
-	done := make(chan struct{})
-	m.inout <- inOut{
-		in:  readSignal{dst: e, n: &n, err: &err},
-		out: done,
-	}
-	<-done
-	return
+func (m *manager) read(ch chan interface{}) {
+	// TODO(jbd): Stop polling when all sensors are disabled?
+	go func() {
+		ev := make([]Event, 8)
+		var n int
+		var err error // TODO(jbd): How to handle the errors?
+		for {
+			done := make(chan struct{})
+			m.inout <- inOut{
+				in:  readSignal{dst: ev, n: &n, err: &err},
+				out: done,
+			}
+			<-done
+			for i := 0; i < n; i++ {
+				ch <- ev[i]
+			}
+		}
+	}()
 }
 
 func readEvents(m *manager, e []Event) (n int, err error) {

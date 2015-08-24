@@ -82,7 +82,7 @@ func Disable(t Type) error {
 
 func Events() <-chan interface{} {
 	ch := make(chan interface{})
-	m.rread(ch)
+	m.read(ch)
 	return ch
 }
 

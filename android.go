@@ -136,7 +136,6 @@ func (m *manager) disable(t Type) error {
 }
 
 func (m *manager) read(ch chan interface{}) {
-	// TODO(jbd): Stop polling when all sensors are disabled?
 	go func() {
 		ev := make([]Event, 8)
 		var n int

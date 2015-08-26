@@ -15,14 +15,13 @@ package sensor
 import "C"
 import (
 	"fmt"
+	"log"
 	"time"
 	"unsafe"
 )
 
 var (
-	aDelay time.Duration
-	gDelay time.Duration
-	mDelay time.Duration
+	doneAccelometer chan struct{}
 )
 
 type manager struct {
@@ -34,11 +33,11 @@ func (m *manager) initialize() {
 }
 
 func (m *manager) enable(t Type, delay time.Duration) error {
-	// TODO(jbd): set the interval.
 	switch t {
 	case Accelerometer:
+		// TODO(jbd): If enabled, don't enable again
 		C.GoIOS_startAccelerometer(m.m)
-		aDelay = delay
+		m.startAccelometer(delay)
 	case Gyroscope:
 	case Magnetometer:
 	default:
@@ -50,6 +49,7 @@ func (m *manager) enable(t Type, delay time.Duration) error {
 func (m *manager) disable(t Type) error {
 	switch t {
 	case Accelerometer:
+		doneAccelometer <- struct{}{}
 		C.GoIOS_stopAccelerometer(m.m)
 	case Gyroscope:
 	case Magnetometer:
@@ -59,28 +59,36 @@ func (m *manager) disable(t Type) error {
 	return nil
 }
 
-func (m *manager) read(ch chan interface{}) {
-	// TODO(jbd): Disable polling when sensor is disabled.
+func (m *manager) startAccelometer(d time.Duration) {
+	// guard the doneAccelometer?
+	doneAccelometer = make(chan struct{})
 	go func() {
 		ev := make([]C.float, 4)
 		var lastTimestamp int64
 		for {
-			C.GoIOS_readAccelerometer(m.m, (*C.float)(unsafe.Pointer(&ev[0])))
-			t := int64(ev[0] * 1000 * 1000)
-			if t > lastTimestamp {
-				ch <- Event{
-					Sensor:    Accelerometer,
-					Timestamp: t,
-					Data:      []float64{float64(ev[1]), float64(ev[2]), float64(ev[3])},
+			select {
+			case <-doneAccelometer:
+				return
+			default:
+				C.GoIOS_readAccelerometer(m.m, (*C.float)(unsafe.Pointer(&ev[0])))
+				t := int64(ev[0] * 1000 * 1000)
+				if t > lastTimestamp {
+					log.Println(Event{
+						Sensor:    Accelerometer,
+						Timestamp: t,
+						Data:      []float64{float64(ev[1]), float64(ev[2]), float64(ev[3])},
+					})
+					lastTimestamp = t
+					<-time.Tick(d)
+				} else {
+					<-time.Tick(d / 4)
 				}
-				lastTimestamp = t
-				<-time.Tick(aDelay)
-			} else {
-				<-time.Tick(aDelay / 2)
 			}
 		}
 	}()
 }
+
+func (m *manager) read(ch chan interface{}) {}
 
 func (m *manager) close() error {
 	C.GoIOS_destroyManager(m.m)

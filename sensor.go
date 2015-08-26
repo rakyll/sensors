@@ -80,12 +80,6 @@ func Disable(t Type) error {
 	return m.disable(t)
 }
 
-func Events() <-chan interface{} {
-	ch := make(chan interface{})
-	m.read(ch)
-	return ch
-}
-
 func init() {
 	m = new(manager)
 	m.initialize()

@@ -21,7 +21,8 @@ import (
 )
 
 var (
-	doneAccelometer chan struct{}
+	mu    sync.Mutex
+	doneA chan struct{}
 )
 
 type manager struct {
@@ -33,9 +34,15 @@ func (m *manager) initialize() {
 }
 
 func (m *manager) enable(t Type, delay time.Duration) error {
+	mu.Lock()
+	mu.Unlock()
+
 	switch t {
 	case Accelerometer:
-		// TODO(jbd): If enabled, don't enable again
+		if doneA != nil {
+			return fmt.Errorf("sensor: cannot enable; %v sensor is already enabled", t)
+		}
+		doneA = make(chan bool)
 		C.GoIOS_startAccelerometer(m.m)
 		m.startAccelometer(delay)
 	case Gyroscope:
@@ -47,10 +54,17 @@ func (m *manager) enable(t Type, delay time.Duration) error {
 }
 
 func (m *manager) disable(t Type) error {
+	mu.Lock()
+	mu.Unlock()
+
 	switch t {
 	case Accelerometer:
-		doneAccelometer <- struct{}{}
+		if doneA == nil {
+			return fmt.Errorf("sensor: cannot disable; %v sensor is not enabled", t)
+		}
+		doneA <- struct{}{}
 		C.GoIOS_stopAccelerometer(m.m)
+		doneA = nil
 	case Gyroscope:
 	case Magnetometer:
 	default:
@@ -73,6 +87,7 @@ func (m *manager) startAccelometer(d time.Duration) {
 				C.GoIOS_readAccelerometer(m.m, (*C.float)(unsafe.Pointer(&ev[0])))
 				t := int64(ev[0] * 1000 * 1000)
 				if t > lastTimestamp {
+					// TODO(jbd): Send app.(*App).Send.
 					log.Println(Event{
 						Sensor:    Accelerometer,
 						Timestamp: t,

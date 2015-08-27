@@ -7,6 +7,7 @@
 package main
 
 import (
+	"log"
 	"time"
 
 	"github.com/rakyll/sensors"
@@ -18,9 +19,8 @@ func main() {
 		sensor.Enable(a, sensor.Accelerometer, time.Millisecond)
 		sensor.Enable(a, sensor.Gyroscope, time.Second)
 
-		go func() {
-			<-time.Tick(time.Second)
-			sensor.Disable(sensor.Accelerometer)
-		}()
+		for e := range a.Events() {
+			log.Println(e)
+		}
 	})
 }

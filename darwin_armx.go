@@ -21,8 +21,6 @@ import (
 )
 
 var (
-	app sender
-
 	mu    sync.Mutex
 	doneA chan struct{}
 )
@@ -39,7 +37,6 @@ func (m *manager) enable(s sender, t Type, delay time.Duration) error {
 	mu.Lock()
 	mu.Unlock()
 
-	app = s
 	switch t {
 	case Accelerometer:
 		if doneA != nil {
@@ -47,7 +44,7 @@ func (m *manager) enable(s sender, t Type, delay time.Duration) error {
 		}
 		// TODO(jbd): Check if acceloremeter is available.
 		C.GoIOS_startAccelerometer(m.m)
-		m.startAccelometer(delay)
+		m.startAccelometer(s, delay)
 		doneA = make(chan struct{})
 	case Gyroscope:
 	case Magnetometer:
@@ -77,7 +74,7 @@ func (m *manager) disable(t Type) error {
 	return nil
 }
 
-func (m *manager) startAccelometer(d time.Duration) {
+func (m *manager) startAccelometer(app sender, d time.Duration) {
 	go func() {
 		ev := make([]C.float, 4)
 		var lastTimestamp int64

@@ -86,6 +86,8 @@ func (m *manager) startAccelometer(app sender, d time.Duration) {
 				C.GoIOS_readAccelerometer(m.m, (*C.float)(unsafe.Pointer(&ev[0])))
 				t := int64(ev[0] * 1000 * 1000)
 				if t > lastTimestamp {
+					// TODO(jbd): Do we need to normalize the values?
+					// How does the sensor rage compares with iOS?
 					app.Send(Event{
 						Sensor:    Accelerometer,
 						Timestamp: t,

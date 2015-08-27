@@ -15,7 +15,7 @@ package sensor
 import "C"
 import (
 	"fmt"
-	"log"
+	"sync"
 	"time"
 	"unsafe"
 )
@@ -48,7 +48,7 @@ func (m *manager) enable(s sender, t Type, delay time.Duration) error {
 		// TODO(jbd): Check if acceloremeter is available.
 		C.GoIOS_startAccelerometer(m.m)
 		m.startAccelometer(delay)
-		doneA = make(chan bool)
+		doneA = make(chan struct{})
 	case Gyroscope:
 	case Magnetometer:
 	default:
@@ -78,14 +78,12 @@ func (m *manager) disable(t Type) error {
 }
 
 func (m *manager) startAccelometer(d time.Duration) {
-	// guard the doneAccelometer?
-	doneAccelometer = make(chan struct{})
 	go func() {
 		ev := make([]C.float, 4)
 		var lastTimestamp int64
 		for {
 			select {
-			case <-doneAccelometer:
+			case <-doneA:
 				return
 			default:
 				C.GoIOS_readAccelerometer(m.m, (*C.float)(unsafe.Pointer(&ev[0])))

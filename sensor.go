@@ -73,7 +73,7 @@ func Enable(s sender, t Type, delay time.Duration) error {
 	if t < 0 || int(t) >= len(sensorNames) {
 		return errors.New("sensor: unknown sensor type")
 	}
-	return m.enable(t, delay)
+	return m.enable(s, t, delay)
 }
 
 // Disable disables to feed the manager with the specified sensor.

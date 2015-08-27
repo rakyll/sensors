@@ -14,13 +14,13 @@ import (
 )
 
 func main() {
-	sensor.Enable(sensor.Accelerometer, time.Millisecond)
-	sensor.Enable(sensor.Gyroscope, time.Second)
+	app.Main(func(a app.App) {
+		sensor.Enable(a, sensor.Accelerometer, time.Millisecond)
+		sensor.Enable(a, sensor.Gyroscope, time.Second)
 
-	go func() {
-		<-time.Tick(time.Second)
-		sensor.Disable(sensor.Accelerometer)
-	}()
-
-	app.Main(func(a app.App) {})
+		go func() {
+			<-time.Tick(time.Second)
+			sensor.Disable(sensor.Accelerometer)
+		}()
+	})
 }

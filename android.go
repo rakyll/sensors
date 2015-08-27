@@ -114,7 +114,7 @@ func (m *manager) initialize() {
 	}
 }
 
-func (m *manager) enable(t Type, delay time.Duration) error {
+func (m *manager) enable(s sender, t Type, delay time.Duration) error {
 	var err error
 	done := make(chan struct{})
 	m.inout <- inOut{

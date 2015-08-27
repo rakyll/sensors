@@ -63,9 +63,13 @@ type Event struct {
 	Data []float64
 }
 
+type sender interface {
+	Send(event interface{})
+}
+
 var m *manager
 
-func Enable(t Type, delay time.Duration) error {
+func Enable(s sender, t Type, delay time.Duration) error {
 	if t < 0 || int(t) >= len(sensorNames) {
 		return errors.New("sensor: unknown sensor type")
 	}

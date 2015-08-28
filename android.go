@@ -18,9 +18,15 @@ import "C"
 import (
 	"fmt"
 	"runtime"
+	"sync"
 	"sync/atomic"
 	"time"
 	"unsafe"
+)
+
+var (
+	mu         sync.Mutex
+	collecting bool
 )
 
 var nextLooperID int64 // each underlying ALooper should have a unique ID.
@@ -115,6 +121,28 @@ func (m *manager) initialize() {
 }
 
 func (m *manager) enable(s sender, t Type, delay time.Duration) error {
+	mu.Lock()
+	if !collecting {
+		go func() {
+			ev := make([]Event, 8)
+			var n int
+			var err error // TODO(jbd): How to handle the errors? error channel?
+			for {
+				done := make(chan struct{})
+				m.inout <- inOut{
+					in:  readSignal{dst: ev, n: &n, err: &err},
+					out: done,
+				}
+				<-done
+				for i := 0; i < n; i++ {
+					s.Send(ev[i])
+				}
+			}
+		}()
+		collecting = true
+	}
+	mu.Unlock()
+
 	var err error
 	done := make(chan struct{})
 	m.inout <- inOut{
@@ -133,25 +161,6 @@ func (m *manager) disable(t Type) error {
 	}
 	<-done
 	return nil
-}
-
-func (m *manager) read(ch chan interface{}) {
-	go func() {
-		ev := make([]Event, 8)
-		var n int
-		var err error // TODO(jbd): How to handle the errors?
-		for {
-			done := make(chan struct{})
-			m.inout <- inOut{
-				in:  readSignal{dst: ev, n: &n, err: &err},
-				out: done,
-			}
-			<-done
-			for i := 0; i < n; i++ {
-				ch <- ev[i]
-			}
-		}
-	}()
 }
 
 func readEvents(m *manager, e []Event) (n int, err error) {

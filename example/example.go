@@ -16,7 +16,7 @@ import (
 
 func main() {
 	app.Main(func(a app.App) {
-		sensor.Enable(a, sensor.Accelerometer, 10*time.Millisecond)
+		sensor.Enable(a, sensor.Accelerometer, 100*time.Millisecond)
 		sensor.Enable(a, sensor.Gyroscope, time.Second)
 
 		go func() {

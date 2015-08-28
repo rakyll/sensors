@@ -63,12 +63,16 @@ type Event struct {
 	Data []float64
 }
 
+// TODO(jbd): Remove sender and couple the package with x/mobile/app?
 type sender interface {
 	Send(event interface{})
 }
 
+// m is the underlying platform-specific sensor manager.
 var m *manager
 
+// Enable enables the specified sensor type with the given delay rate.
+// Sensor events will be sent to the s that implements Send(event interface{}).
 func Enable(s sender, t Type, delay time.Duration) error {
 	if t < 0 || int(t) >= len(sensorNames) {
 		return errors.New("sensor: unknown sensor type")

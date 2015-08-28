@@ -16,8 +16,13 @@ import (
 
 func main() {
 	app.Main(func(a app.App) {
-		sensor.Enable(a, sensor.Accelerometer, time.Millisecond)
+		sensor.Enable(a, sensor.Accelerometer, 10*time.Millisecond)
 		sensor.Enable(a, sensor.Gyroscope, time.Second)
+
+		go func() {
+			<-time.Tick(time.Second)
+			sensor.Disable(sensor.Gyroscope)
+		}()
 
 		for e := range a.Events() {
 			log.Println(e)

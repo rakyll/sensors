@@ -34,6 +34,9 @@ func (m *manager) initialize() {
 }
 
 func (m *manager) enable(s sender, t Type, delay time.Duration) error {
+	// TODO(jbd): If delay is smaller than 10 milliseconds, set it to
+	// 10 milliseconds. It is highest frequency iOS SDK suppports and
+	// we don't want to have time.Tick durations smaller than this value.
 	mu.Lock()
 	mu.Unlock()
 
@@ -86,8 +89,8 @@ func (m *manager) startAccelometer(app sender, d time.Duration) {
 				C.GoIOS_readAccelerometer(m.m, (*C.float)(unsafe.Pointer(&ev[0])))
 				t := int64(ev[0] * 1000 * 1000)
 				if t > lastTimestamp {
-					// TODO(jbd): Do we need to normalize the values?
-					// How does the sensor rage compares with iOS?
+					// TODO(jbd): Do we need to convert the values to another unit?
+					// How does iOS units compate to the Android units.
 					app.Send(Event{
 						Sensor:    Accelerometer,
 						Timestamp: t,
@@ -103,8 +106,7 @@ func (m *manager) startAccelometer(app sender, d time.Duration) {
 	}()
 }
 
-func (m *manager) read(ch chan interface{}) {}
-
+// TODO(jbd): Remove close?
 func (m *manager) close() error {
 	C.GoIOS_destroyManager(m.m)
 	return nil

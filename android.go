@@ -190,6 +190,7 @@ func readEvents(m *manager, e []Event) (n int, err error) {
 	return
 }
 
+// TODO(jbd): Remove close?
 func (m *manager) close() error {
 	done := make(chan struct{})
 	m.inout <- inOut{
